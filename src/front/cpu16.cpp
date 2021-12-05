@@ -1,0 +1,1383 @@
+
+#include "shared/defs.h"
+#include "shared/misc.h"
+#include "shared/front.h"
+#include "shared/action.h"
+#include "x86_IR.h"
+#include "x86.h"
+
+namespace x86_16 {
+
+#define PTRSIZE 2	//IA32
+
+static templ_t * g_list = nullptr;
+
+struct templ2_t : public templ_t
+{
+	templ2_t(const char* n, const itf_entry_t* f, const ito_t* o, int p = 0)//int (*f)[INS_OPS_MAX]
+		: templ_t(n, f, o, p, g_list)
+	{
+		g_list = this;
+
+		templ_t** prev = &g_list;
+		while (next)
+		{
+			int result = strcmp(name, next->name);
+			if (result < 0)
+				break;//add in tail of peers
+			if (result == 0)
+				break;//add in head of peers 
+
+			*prev = next;
+			next = (*prev)->next;
+			(*prev)->next = this;
+			prev = &((*prev)->next);
+		}
+	}
+
+	/*void cout_list()
+	{
+		templ_t *p = g_list;
+		while (p)
+		{
+			std::cout << p->name << std::endl;
+			p = p->next;
+		}
+
+		getch();
+	}*/
+};
+
+#define FULLEXPAND 0
+
+#pragma warning(disable:4838)
+
+/////////////////////////////////////////////////////
+
+// A D C
+IT_FRM(ADC)//"Add with Carry"
+//	{_INT|R8_AL,	_INT|OP_I8},	
+//	{_INT|R16_AX,	_INT|OP_I16},	
+	{_INT|OP_R8,	_INT|OP_I8},	
+	{_INT|OP_M8,	_INT|OP_I8},	
+	{_INT|OP_R16,	_INT|OP_I16},	
+	{_INT|OP_M16,	_INT|OP_I16},	
+	{_INT|OP_R16,	S_|OP_I8},	
+	{_INT|OP_M16,	S_|OP_I8},	
+	{_INT|OP_R8,	_INT|OP_R8},	
+	{_INT|OP_M8,	_INT|OP_R8},	
+	{_INT|OP_R16,	_INT|OP_R16},	
+	{_INT|OP_M16,	_INT|OP_R16},	
+	{_INT|OP_R8,	_INT|OP_M8},	
+	{_INT|OP_R16,	_INT|OP_M16},	
+IT_BEG(ADC)
+//u?=op2+cf, op1=op1+u?
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_AUXREG, SIZEOF(OPND_1), OFS(R_U16))
+			ACTN1(ACTN_ADD)
+				OPND1(OPND_2)
+				OPND3(RCL(R_CF), SIZ(R_CF), OFS(R_CF))
+		ACTN4(ACTN_MOV, M_(F_OF|F_SF|F_ZF|F_AF|F_PF|F_CF), 0)
+			OPND1(OPND_1)
+			ACTN1(ACTN_ADD)
+				OPND1(OPND_1)
+				OPND3(OPC_AUXREG, SIZEOF(OPND_1), OFS(R_U16))
+IT_END(ADC)
+
+// A D D	
+IT_FRM(ADD)//"Add"
+//	{_INT|R8_AL,	_INT|OP_I8},	//"%AL,%Ib"
+//	{_INT|R16_AX,	_INT|OP_I16},	//"%AX,%Iw"
+	{_INT|OP_R8,	_INT|OP_I8},	//"%Eb,%Ib"
+	{_INT|OP_M8,	_INT|OP_I8},	//"%Eb,%Ib"
+	{_INT|OP_R16,	_INT|OP_I16},	//"%Ew,%Iw"
+	{_INT|OP_M16,	_INT|OP_I16},	//"%Ew,%Iw"
+	{_INT|OP_R16,	S_|OP_I8},	//"%Ew,%Ib"
+	{_INT|OP_M16,	S_|OP_I8},	//"%Ew,%Ib"
+	{_INT|OP_R8,	_INT|OP_R8},	//"%Eb,%Gb"
+	{_INT|OP_M8,	_INT|OP_R8},	//"%Eb,%Gb"
+	{_INT|OP_R16,	_INT|OP_R16},	//"%Ew,%Gw"
+	{_INT|OP_M16,	_INT|OP_R16},	//"%Ew,%Gw"
+	{_INT|OP_R8,	_INT|OP_M8},	//"%Gb,%Eb"
+	{_INT|OP_R16,	_INT|OP_M16},	//"%Gw,%Ew"
+IT_BEG(ADD)
+//op1=op1+op2
+	ACTN4(ACTN_MOV, M_(F_CF|F_PF|F_AF|F_ZF|F_SF|F_OF), 0)
+		OPND1(OPND_1)
+		ACTN1(ACTN_ADD)
+			OPND1(OPND_1)
+			OPND1(OPND_2)
+IT_END(ADD)
+
+// A N D	
+IT_FRM(AND)//"Logical AND",
+//	{R8_AL,		U_|OP_I8},
+//	{R16_AX,	U_|OP_I16},
+	{OP_R8,		U_|OP_I8},
+	{OP_M8,		U_|OP_I8},
+	{OP_R16,	U_|OP_I16},
+	{OP_M16,	U_|OP_I16},
+	{OP_R16,	S_|OP_I8},
+	{OP_M16,	S_|OP_I8},
+	{OP_R8,		OP_R8},
+	{OP_M8,		OP_R8},
+	{OP_R16,	OP_R16},
+	{OP_M16,	OP_R16},
+	{OP_R8,		OP_M8},
+	{OP_R16,	OP_M16},
+IT_BEG(AND)
+#if(FULLEXPAND)
+//(op1,csw(cf,pf,sf))=op1&op2, csw(cf,of)= 0
+	ACTN1(ACTN_COMMA)
+		ACTN4(ACTN_MOV, M_(F_PF|F_ZF|F_SF), 0)
+			OPND1(OPND_1)
+			ACTN1(ACTN_AND)
+				OPND1(OPND_1)
+				OPND1(OPND_2)
+		ACTN4(ACTN_MOV, M_(F_CF|F_OF), 0)
+			OPND3(FOPC_CPUSW, OPSZ_WORD, 0)
+			OPND3(OPC_IMM, OPSZ_WORD, 0)
+#else
+//(op1,csw(cf,pf,sf,of,cf))=op1&op2
+	ACTN4(ACTN_MOV, M_(F_PF|F_ZF|F_SF|F_CF|F_OF), 0)
+		OPND1(OPND_1)
+		ACTN1(ACTN_AND)
+			OPND1(OPND_1)
+			OPND1(OPND_2)
+#endif
+IT_END(AND)
+
+// B T
+IT_FRM(BT)//"Bit Test",
+	{OP_R16,	U_|OP_R16},
+	{OP_M16,	U_|OP_R16},
+	{OP_R16,	U_|OP_I8},
+	{OP_M16,	U_|OP_I8},
+IT_BEG(BT)
+//u?=1<<op2, u?=op1&u?, @CF=u?!=0
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_AUXREG, SIZEOF(OPND_1), OFS(R_U32))
+			ACTN1(ACTN_SHL)
+				OPND3(OPC_IMM, SIZEOF(OPND_1), 1)
+				OPND1(OPND_2)
+		ACTN1(ACTN_COMMA)
+			ACTN1(ACTN_MOV)
+				OPND3(OPC_AUXREG, SIZEOF(OPND_1), OFS(R_U32))
+				ACTN1(ACTN_AND)
+					OPND1(OPND_1)
+					OPND3(OPC_AUXREG, SIZEOF(OPND_1), OFS(R_U32))
+			ACTN4(ACTN_MOV, M_(F_CF), 0)
+				OPND3(RCL(R_CF), SIZ(R_CF), OFS(R_CF))
+				ACTN1(ACTN_NZERO)
+					OPND3(OPC_AUXREG, SIZEOF(OPND_1), OFS(R_U32))
+IT_END(BT)
+
+// C A L L
+IT_FRM(CALL)//"Call Procedure",
+	{OP_REL16},
+	{OP_R16},
+	{OP_M16},
+	{OP_PTR1616},
+	{OP_M1616},
+IT_BEG(CALL)
+	ACTN4(ACTN_CALL, 0, __SP(-1))
+		OPND1(OPND_1)
+		OPND0//ACTN1(ACTN_NULL)
+IT_END(CALL)
+
+// C B W
+IT_FRM(CBW)//"Convert Byte to Word" (ax = SignExtend(al))
+IT_BEG(CBW)
+//ax = SignExtend(al)
+	ACTN1(ACTN_MOV)
+		OPND3(OPC_CPUREG, OPTYP_INT16, OFS(R_AX))
+		ACTN1(ACTN_SIGNEXT)
+			OPND3(OPC_CPUREG, OPTYP_INT8, OFS(R_AL))
+IT_END(CBW)
+
+// C L C
+IT_FRM(CLC)//"Clear Carry Flag"
+IT_BEG(CLC)
+//@CF = 0
+	ACTN4(ACTN_MOV, M_(F_CF), 0)
+		OPND3(RCL(R_CF), SIZ(R_CF), OFS(R_CF))
+		OPND3(OPC_IMM, OPSZ_WORD, 0)
+IT_END(CLC)
+
+// C L D
+IT_FRM(CLD)//"Clear Direction Flag"
+IT_BEG(CLD)
+//@DF = 0
+	ACTN4(ACTN_MOV, M_(F_DF), 0)
+		OPND3(RCL(R_DF), SIZ(R_DF), OFS(R_DF))
+		OPND3(OPC_IMM, OPSZ_WORD, 0)
+IT_END(CLD)
+
+// C L I
+IT_FRM(CLI)//"Clear Interrupt Flag"
+IT_BEG(CLI)
+//@IF = 0
+	ACTN4(ACTN_MOV, M_(F_IF), 0)
+		OPND3(FOPC_CPUSW, OPSZ_WORD, F_IF)
+		OPND3(OPC_IMM, OPSZ_WORD, 0)
+IT_END(CLI)
+
+// C M C
+IT_FRM(CMC)//"Complement Carry Flag"
+IT_BEG(CMC)
+//@CF = ~@CF
+	ACTN4(ACTN_MOV, M_(F_CF), 0)
+		OPND3(RCL(R_CF), SIZ(R_CF), OFS(R_CF))
+		ACTN1(ACTN_NOT)
+			OPND3(RCL(R_CF), SIZ(R_CF), OFS(R_CF))
+IT_END(CMC)
+
+// C M P
+IT_FRM(CMP)//"Compare Two Operands"
+//	{R8_AL,		OP_I8},
+//	{R16_AX,	OP_I16},
+	{OP_R8,		OP_I8},
+	{OP_M8,		OP_I8},
+	{OP_R16,	OP_I16},
+	{OP_M16,	OP_I16},
+	{OP_R16,	OP_I8},
+	{OP_M16,	OP_I8},
+	{OP_R8,		OP_R8},
+	{OP_M8,		OP_R8},
+	{OP_R16,	OP_R16},
+	{OP_M16,	OP_R16},
+	{OP_R8,		OP_M8},
+	{OP_R16,	OP_M16},
+IT_BEG(CMP)
+//cpusw ~~ op1-op2
+	ACTN4(ACTN_CHECK, M_(F_CF|F_PF|F_AF|F_ZF|F_SF|F_OF), 0)
+		OPND3(FOPC_CPUSW, OPTYP_UINT16, 0)
+		ACTN1(ACTN_SUB)
+			OPND1(OPND_1)
+			OPND1(OPND_2)
+IT_END(CMP)
+
+// C W D
+IT_FRM(CWD)//"Convert Word to Double" (dx:ax = SignExtend(ax))
+IT_BEG(CWD)
+//u32 = SignExtend(ax), dx = u32h
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_AUXREG, OPTYP_INT32, OFS(R_U32))
+			ACTN1(ACTN_SIGNEXT)
+				OPND3(OPC_CPUREG, OPTYP_INT16, OFS(R_AX))
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_CPUREG, OPTYP_WORD, OFS(R_DX))
+			OPND3(OPC_AUXREG, OPTYP_WORD, OFS(R_U32H))
+IT_END(CWD)
+
+// D E C	
+IT_FRM(DEC)	//"Decrement by 1",
+	{_INT|OP_R8},
+	{_INT|OP_M8},
+	{_INT|OP_R16},
+	{_INT|OP_M16},
+IT_BEG(DEC)
+//op1 = op1-1
+	ACTN4(ACTN_MOV, M_(F_PF|F_AF|F_ZF|F_SF|F_OF), 0)
+		OPND1(OPND_1)
+		ACTN1(ACTN_SUB)
+			OPND1(OPND_1)
+			OPND3(OPC_IMM, SIZEOF(OPND_1), 1)
+IT_END(DEC)
+
+// D I V (1)
+IT_FRM(DIV)	//"Unsigned Divide" (al=ax/rm8;ah=ax%rm8)
+	{U_|R8_AL,		U_|OP_R8},
+	{U_|R8_AL,		U_|OP_M8},
+IT_BEG(DIV)
+//u8=ax/op2, ah=ax%op2, al=u8
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_AUXREG, OPTYP_UINT8, OFS(R_U8))
+			ACTN1(ACTN_DIV)
+				OPND3(OPC_CPUREG, OPTYP_UINT16, OFS(R_AX))
+				OPND1(OPND_2)
+		ACTN1(ACTN_COMMA)
+			ACTN1(ACTN_MOV)
+				OPND3(OPC_CPUREG, OPTYP_UINT8, OFS(R_AH))
+				ACTN1(ACTN_MOD)
+					OPND3(OPC_CPUREG, OPTYP_UINT16, OFS(R_AX))
+					OPND1(OPND_2)
+			ACTN1(ACTN_MOV)
+				OPND3(OPC_CPUREG, OPSZ_BYTE, OFS(R_AL))
+				OPND3(OPC_AUXREG, OPSZ_BYTE, OFS(R_U8))
+IT_END(DIV)
+
+// D I V (2)
+IT_FRM2(DIV,2)	//"Unsigned Divide" (ax=dx:ax/rm16; dx=dx:ax%rm16)
+	{U_|R16_AX,		U_|OP_R16},
+	{U_|R16_AX,		U_|OP_M16},
+IT_BEG2(DIV,2)
+//v16=ax, v32h=dx, ax=v32/op2, dx=v32%op2
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_AUXREG, OPSZ_WORD, OFS(R_V16))
+			OPND3(OPC_CPUREG, OPSZ_WORD, OFS(R_AX))
+		ACTN1(ACTN_COMMA)
+			ACTN1(ACTN_MOV)
+				OPND3(OPC_AUXREG, OPSZ_WORD, OFS(R_V32H))
+				OPND3(OPC_CPUREG, OPSZ_WORD, OFS(R_DX))
+			ACTN1(ACTN_COMMA)
+				ACTN1(ACTN_MOV)
+					OPND3(OPC_CPUREG, OPTYP_UINT16, OFS(R_AX))
+					ACTN1(ACTN_DIV)
+						OPND3(OPC_AUXREG, OPTYP_UINT32, OFS(R_V32))
+						OPND1(OPND_2)
+				ACTN1(ACTN_MOV)
+					OPND3(OPC_CPUREG, OPTYP_UINT16, OFS(R_DX))
+					ACTN1(ACTN_MOD)
+						OPND3(OPC_AUXREG, OPTYP_UINT32, OFS(R_V32))
+						OPND1(OPND_2)
+IT_END2(DIV,2)
+
+// I D I V (1)
+IT_FRM(IDIV)	//"Signed Divide" (al=ax/rm8;ah=ax%rm8)
+	{S_|OP_R8},
+	{S_|OP_M8},
+IT_BEG(IDIV)
+//u8=ax/op1, ah=ax%op1, al=u8
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_AUXREG, OPTYP_INT8, OFS(R_U8))
+			ACTN1(ACTN_DIV)
+				OPND3(OPC_CPUREG, OPTYP_INT16, OFS(R_AX))
+				OPND1(OPND_1)
+		ACTN1(ACTN_COMMA)
+			ACTN1(ACTN_MOV)
+				OPND3(OPC_CPUREG, OPTYP_INT8, OFS(R_AH))
+				ACTN1(ACTN_MOD)
+					OPND3(OPC_CPUREG, OPTYP_INT16, OFS(R_AX))
+					OPND1(OPND_1)
+			ACTN1(ACTN_MOV)
+				OPND3(OPC_CPUREG, OPSZ_BYTE, OFS(R_AL))
+				OPND3(OPC_AUXREG, OPSZ_BYTE, OFS(R_U8))
+IT_END(IDIV)
+
+// I D I V (2)
+IT_FRM2(IDIV,2)	//"Signed Divide" (ax=dx:ax/rm16; dx=dx:ax%rm16)
+	{S_|OP_R16},
+	{S_|OP_M16},
+IT_BEG2(IDIV,2)
+//v16=ax, v32h=dx, ax=v32/op2, dx=v32%op2
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_AUXREG, OPSZ_WORD, OFS(R_V16))
+			OPND3(OPC_CPUREG, OPSZ_WORD, OFS(R_AX))
+		ACTN1(ACTN_COMMA)
+			ACTN1(ACTN_MOV)
+				OPND3(OPC_AUXREG, OPSZ_WORD, OFS(R_V32H))
+				OPND3(OPC_CPUREG, OPSZ_WORD, OFS(R_DX))
+			ACTN1(ACTN_COMMA)
+				ACTN1(ACTN_MOV)
+					OPND3(OPC_CPUREG, OPTYP_INT16, OFS(R_AX))
+					ACTN1(ACTN_DIV)
+						OPND3(OPC_AUXREG, OPTYP_INT32, OFS(R_V32))
+						OPND1(OPND_1)
+				ACTN1(ACTN_MOV)
+					OPND3(OPC_CPUREG, OPTYP_INT16, OFS(R_DX))
+					ACTN1(ACTN_MOD)
+						OPND3(OPC_AUXREG, OPTYP_INT32, OFS(R_V32))
+						OPND1(OPND_1)
+IT_END2(IDIV,2)
+
+// I M U L (1)	
+IT_FRM(IMUL)	//"Signed Multiply" 
+	{S_|OP_R8},	
+	{S_|OP_M8},	
+IT_BEG(IMUL)
+//ax = al*rm8
+	ACTN4(ACTN_MOV, M_(F_CF|F_OF), 0)
+		OPND3(OPC_CPUREG, OPTYP_INT16, OFS(R_AX))
+		ACTN1(ACTN_MUL)
+			OPND3(OPC_CPUREG, OPTYP_INT8, OFS(R_AL))
+			OPND1(OPND_1)
+IT_END(IMUL)
+
+// I M U L (2)	
+IT_FRM2(IMUL,2)	//"Signed Multiply" (dx:ax = ax*rm16)
+	{S_|OP_R16},	
+	{S_|OP_M16},	
+IT_BEG2(IMUL,2)
+//u32 = ax*rm16, ax=u16, dx=u32h
+	ACTN1(ACTN_COMMA)
+		ACTN4(ACTN_MOV, M_(F_CF|F_OF), 0)
+			OPND3(OPC_AUXREG, OPTYP_INT32, OFS(R_U32))
+			ACTN1(ACTN_MUL)
+				OPND3(OPC_CPUREG, OPTYP_INT16, OFS(R_AX))
+				OPND1(OPND_1)
+		ACTN1(ACTN_COMMA)
+			ACTN1(ACTN_MOV)
+				OPND3(OPC_CPUREG, OPSZ_WORD, OFS(R_AX))
+				OPND3(OPC_AUXREG, OPSZ_WORD, OFS(R_U16))
+			ACTN1(ACTN_MOV)
+				OPND3(OPC_CPUREG, OPSZ_WORD, OFS(R_DX))
+				OPND3(OPC_AUXREG, OPSZ_WORD, OFS(R_U32H))
+IT_END2(IMUL,2)
+
+// I M U L (3)	
+IT_FRM2(IMUL,3)	//"Signed Multiply"
+	{S_|OP_R16,		S_|OP_R16},		//r16 *= r16
+	{S_|OP_R16,		S_|OP_M16},		//r16 *= m16
+	{S_|OP_R16,		S_|OP_I8},	//r16 *= i8
+	{S_|OP_R16,		S_|OP_I16},	//r16 *= i16
+IT_BEG2(IMUL,3)
+//op1=op1*op2
+	ACTN4(ACTN_MOV, M_(F_CF|F_OF), 0)
+		OPND1(OPND_1)
+		ACTN1(ACTN_MUL)
+			OPND1(OPND_1)
+			OPND1(OPND_2)
+IT_END2(IMUL,3)
+
+// I M U L (4)	
+IT_FRM2(IMUL,4)	//"Signed Multiply" (edx:eax = eax*rm32)
+	{S_|OP_R16,		S_|OP_R16,		S_|OP_I8},	//r16 = r16*i8
+	{S_|OP_R16,		S_|OP_M16,		S_|OP_I8},	//r16 = m16*i8
+	{S_|OP_R16,		S_|OP_R16,		S_|OP_I16},	//r16 = r16*i16
+	{S_|OP_R16,		S_|OP_M16,		S_|OP_I16},	//r16 = m16*i16
+IT_BEG2(IMUL,4)
+//op1=op2*op3
+	ACTN4(ACTN_MOV, M_(F_CF|F_OF), 0)
+		OPND1(OPND_1)
+		ACTN1(ACTN_MUL)
+			OPND1(OPND_2)
+			OPND1(OPND_3)
+IT_END2(IMUL,4)
+
+// I N
+IT_FRM(IN)//"Input from Port"
+	{R8_AL,		OP_I8},
+	{R16_AX,	OP_I8},	
+	{R8_AL,		R16_DX},
+	{R16_AX,	R16_DX},	
+IT_BEG(IN)
+//op1=in(op2)
+	ACTN1(ACTN_MOV)
+		OPND1(OPND_1)
+		ACTN1(ACTN_IN)
+			OPND1(OPND_2)
+IT_END(IN)
+
+// I N C	
+IT_FRM(INC)//"Increment by 1"
+	{_INT|OP_R8},
+	{_INT|OP_M8},
+	{_INT|OP_R16},
+	{_INT|OP_M16},
+IT_BEG(INC)
+//op1=op1+1
+	ACTN4(ACTN_MOV, M_(F_PF|F_AF|F_ZF|F_SF|F_OF), 0)
+		OPND1(OPND_1)
+		ACTN1(ACTN_ADD)
+			OPND1(OPND_1)
+			OPND3(OPC_IMM, SIZEOF(OPND_1), 1)
+IT_END(INC)
+
+//////////////////////////////////////
+#include "jumps16.inl"
+//////////////////////////////////////
+
+// L E A
+IT_FRM(LEA)//"Load Effective Address"
+	{OP_R16,	MAKEOPC(OPC_INDIRECT)},
+IT_BEG(LEA)
+//op1 = &op2
+	ACTN1(ACTN_MOV)
+		OPND1(OPND_1)
+		ACTN1(ACTN_OFFS)
+			OPND1(OPND_2)
+IT_END(LEA)
+
+// L E A V E
+IT_FRM(LEAVE)//"High Level Procedure Exit"
+IT_BEG(LEAVE)
+//sp=bp, bp=[sp]
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_CPUREG, SIZ(R_SP), OFS(R_SP))
+			OPND3(OPC_CPUREG, SIZ(R_BP), OFS(R_BP))
+		ACTN4(ACTN_MOV, 0, __SP(1))
+			OPND3(OPC_CPUREG, SIZ(R_BP), OFS(R_BP))
+			OPND3(OPC_SS | OPC_CPUREG, SIZ(R_SP), OFS(R_SP))
+IT_END(LEAVE)
+
+// L E S
+IT_FRM(LES)//Load Full Pointer	//es:op1 = op2
+	{OP_R16,	OP_M1616},
+IT_BEG(LES)
+//u32=op2,es=u32h,op1=u16
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_AUXREG, SIZ(R_U32), OFS(R_U32))
+			OPND1(OPND_2)
+		ACTN1(ACTN_COMMA)
+			ACTN1(ACTN_MOV)
+				OPND3(OPC_SEGREG, OPSZ_WORD, OFS(R_ES))//?OPSEG_ES)
+				OPND3(OPC_AUXREG, SIZ(R_U32H), OFS(R_U32H))
+			ACTN1(ACTN_MOV)
+				OPND1(OPND_1)
+				OPND3(OPC_AUXREG, SIZ(R_U16), OFS(R_U16))
+IT_END(LES)
+
+// M O V
+IT_FRM(MOV)//"Move Data"
+	{OP_R8,		OP_R8},
+	{OP_M8,		OP_R8},
+	{OP_R16,	OP_R16},
+	{OP_M16,	OP_R16},
+	{OP_R8,		OP_M8},
+	{OP_R16,	OP_M16},
+	{OP_R16,	OP_SREG},
+	{OP_M16,	OP_SREG},
+	{OP_SREG,	OP_R16},
+	{OP_SREG,	OP_M16},
+//	{R8_AL,		OP_MOFFS8},
+//	{R16_AX,	OP_MOFFS16},
+//	{OP_MOFFS8,	R8_AL},
+//	{OP_MOFFS16,R16_AX},
+	{OP_R8,		OP_I8},	//REG8
+	{OP_R16,	OP_I16},	//REG16
+	{OP_M8,		OP_I8},
+	{OP_M16,	OP_I16},
+IT_BEG(MOV)
+//op1 = op2
+	ACTN1(ACTN_MOV)
+		OPND1(OPND_1)
+		OPND1(OPND_2)
+IT_END(MOV)
+
+// M O V S B
+IT_FRM(MOVSB)//"Move Byte from Source to Destination"
+IT_BEG(MOVSB)
+//ds:[di]:1=es:[si]:1, u16=1-2*df, si=si+u16, di=di+u16
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_DS | OPC_CPUREG, OPSZ_BYTE, OFS(R_DI))
+			OPND3(OPC_ES | OPC_CPUREG, OPSZ_BYTE, OFS(R_SI))
+		ACTN1(ACTN_COMMA)
+			ACTN1(ACTN_MOV)
+				OPND3(OPC_AUXREG, SIZ(R_U16), OFS(R_U16))
+				ACTN1(ACTN_SUB)
+					OPND3(OPC_IMM, SIZ(R_U16), 1)
+					ACTN1(ACTN_MUL)
+						OPND3(OPC_IMM, SIZ(R_U16), 2)
+						OPND3(RCL(R_DF), SIZ(R_DF), OFS(R_DF))
+			ACTN1(ACTN_COMMA)
+				ACTN1(ACTN_MOV)
+					OPND3(OPC_CPUREG, SIZ(R_SI), OFS(R_SI))
+					ACTN1(ACTN_ADD)
+						OPND3(OPC_CPUREG, SIZ(R_SI), OFS(R_SI))
+						OPND3(OPC_AUXREG, SIZ(R_U16), OFS(R_U16))
+				ACTN1(ACTN_COMMA)
+					ACTN1(ACTN_MOV)
+						OPND3(OPC_CPUREG, SIZ(R_DI), OFS(R_DI))
+						ACTN1(ACTN_ADD)
+							OPND3(OPC_CPUREG, SIZ(R_DI), OFS(R_DI))
+							OPND3(OPC_AUXREG, SIZ(R_U16), OFS(R_U16))
+IT_END(MOVSB)
+
+// M O V S B (2) / R E P N E
+IT_FRM2(MOVSB,2)	//"Move Byte from Source to Destination while not equal"
+IT_BEG2(MOVSB,2)
+//movs(/di, si, cx/)
+	ACTN1(ACTN_CALL)
+		OPND4(OPC_ADDRESS|OPC_GLOBAL, OPTYP_PTR16, 0, "movs")
+		OPND0//ACTN1(ACTN_NULL)
+IT_END7(MOVSB,2,PFX_REPNE)
+
+////////////////////////
+
+// M O V S W
+IT_FRM(MOVSW)//"Move Word from Source to Destination"
+IT_BEG(MOVSW)
+//ds:[di]:2=es:[si]:2, u16=2-4*df, si=si+u16, di=di+u16
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_DS | OPC_CPUREG, OPSZ_WORD, OFS(R_DI))
+			OPND3(OPC_ES | OPC_CPUREG, OPSZ_WORD, OFS(R_SI))
+		ACTN1(ACTN_COMMA)
+			ACTN1(ACTN_MOV)
+				OPND3(OPC_AUXREG, SIZ(R_U16), OFS(R_U16))
+				ACTN1(ACTN_SUB)
+					OPND3(OPC_IMM, SIZ(R_U16), 2)
+					ACTN1(ACTN_MUL)
+						OPND3(OPC_IMM, SIZ(R_U16), 4)
+						OPND3(RCL(R_DF), SIZ(R_DF), OFS(R_DF))
+			ACTN1(ACTN_COMMA)
+				ACTN1(ACTN_MOV)
+					OPND3(OPC_CPUREG, SIZ(R_SI), OFS(R_SI))
+					ACTN1(ACTN_ADD)
+						OPND3(OPC_CPUREG, SIZ(R_SI), OFS(R_SI))
+						OPND3(OPC_AUXREG, SIZ(R_U16), OFS(R_U16))
+				ACTN1(ACTN_COMMA)
+					ACTN1(ACTN_MOV)
+						OPND3(OPC_CPUREG, SIZ(R_DI), OFS(R_DI))
+						ACTN1(ACTN_ADD)
+							OPND3(OPC_CPUREG, SIZ(R_DI), OFS(R_DI))
+							OPND3(OPC_AUXREG, SIZ(R_U16), OFS(R_U16))
+IT_END(MOVSW)
+
+// M O V S W (2) / R E P N E
+IT_FRM2(MOVSW,2)	//"Move Words from Source to Destination while not equal"
+IT_BEG2(MOVSW,2)
+//cx=cx*2, movs(/di, si, cx/)
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_CPUREG, OPTYP_UINT16, OFS(R_CX))
+			ACTN1(ACTN_MUL)
+				OPND3(OPC_CPUREG, OPTYP_UINT16, OFS(R_CX))
+				OPND3(OPC_IMM, OPTYP_UINT16, OPSZ_WORD)
+		ACTN1(ACTN_CALL)
+			OPND4(OPC_ADDRESS|OPC_GLOBAL, OPTYP_PTR16, 0, "movs")
+			OPND0//ACTN1(ACTN_NULL)
+IT_END7(MOVSW,2,PFX_REPNE)
+
+// M O V S X
+IT_FRM(MOVSX)//"Move with Sign-Extend"
+	{S_|OP_R16,	S_|OP_R8},
+	{S_|OP_R16,	S_|OP_M8},
+IT_BEG(MOVSX)
+//op1 = SignExtend(op2)
+	ACTN1(ACTN_MOV)
+		OPND1(OPND_1)
+		ACTN1(ACTN_SIGNEXT)
+			OPND1(OPND_2)
+IT_END(MOVSX)
+
+// M O V Z X
+IT_FRM(MOVZX)//"Move with Zero-Extend"
+	{U_|OP_R16,	U_|OP_R8},
+	{U_|OP_R16,	U_|OP_M8},
+IT_BEG(MOVZX)
+//op1 = ZeroExtend(op2)
+	ACTN1(ACTN_MOV)
+		OPND1(OPND_1)
+		ACTN1(ACTN_ZEROEXT)
+			OPND1(OPND_2)
+IT_END(MOVZX)
+
+// M U L (1)	
+IT_FRM(MUL)	//"Unsigned Multiplication of AL"
+	{U_|OP_R8},
+	{U_|OP_M8},
+IT_BEG(MUL)
+//ax = al*rm8
+	ACTN4(ACTN_MOV, M_(F_CF|F_OF), 0)
+		OPND3(OPC_CPUREG, OPTYP_UINT16, OFS(R_AX))
+		ACTN1(ACTN_MUL)
+			OPND3(OPC_CPUREG, OPTYP_UINT8, OFS(R_AL))
+			OPND1(OPND_1)//?
+IT_END(MUL)
+
+// M U L (2)	
+IT_FRM2(MUL,2)	//"Unsigned Multiplication of AX" (dx:ax = ax*rm16)
+	{U_|OP_R16},	
+	{U_|OP_M16},	
+IT_BEG2(MUL,2)
+//u32 = ax*rm16, ax=u16, dx=u32h
+	ACTN1(ACTN_COMMA)
+		ACTN4(ACTN_MOV, M_(F_CF|F_OF), 0)
+			OPND3(OPC_AUXREG, OPTYP_UINT32, OFS(R_U32))
+			ACTN1(ACTN_MUL)
+				OPND3(OPC_CPUREG, OPTYP_UINT16, OFS(R_AX))
+				OPND1(OPND_2)
+		ACTN1(ACTN_COMMA)
+			ACTN1(ACTN_MOV)
+				OPND3(OPC_CPUREG, OPSZ_WORD, OFS(R_AX))
+				OPND3(OPC_AUXREG, OPSZ_WORD, OFS(R_U16))
+			ACTN1(ACTN_MOV)
+				OPND3(OPC_CPUREG, OPSZ_WORD, OFS(R_DX))
+				OPND3(OPC_AUXREG, OPSZ_WORD, OFS(R_U32H))
+IT_END2(MUL,2)
+
+// M U L (3)	
+IT_FRM2(MUL,3)	//"Unsigned Multiplication of AX" (dx:ax = ax*rm16)
+	{U_|R8_AL,		U_|OP_R8},
+	{U_|R8_AL,		U_|OP_M8},
+	{U_|R16_AX,		U_|OP_R16},
+	{U_|R16_AX,		U_|OP_M16},
+IT_BEG2(MUL,3)
+//op1=op1*op2
+	ACTN4(ACTN_MOV, M_(F_CF|F_OF), 0)
+		OPND1(OPND_1)
+		ACTN1(ACTN_MUL)
+			OPND1(OPND_1)
+			OPND1(OPND_2)
+IT_END2(MUL,3)
+
+// N E G
+IT_FRM(NEG)//"Two's Complement Negation",
+	{S_|OP_R8},
+	{S_|OP_M8},
+	{S_|OP_R16},
+	{S_|OP_M16},
+IT_BEG(NEG)
+//cf=op1!=0, op1=-op1
+	ACTN1(ACTN_COMMA)
+		ACTN4(ACTN_MOV, M_(F_CF), 0)
+			OPND3(RCL(R_CF), SIZ(R_CF), OFS(R_CF))
+			ACTN1(ACTN_ZERO)
+				OPND1(OPND_1)
+		ACTN4(ACTN_MOV, M_(F_PF|F_ZF|F_SF|F_OF), 0)
+			OPND1(OPND_1)
+			ACTN1(ACTN_CHS)
+				OPND1(OPND_1)
+IT_END(NEG)
+
+// N O P
+IT_FRM(NOP)//No Operation
+IT_BEG(NOP)
+	OPND0//ACTN1(ACTN_NULL)//?
+IT_END(NOP)
+
+// N O T	
+IT_FRM(NOT)//"One's Complement Negation"
+	{U_|OP_R8},
+	{U_|OP_M8},
+	{U_|OP_R16},
+	{U_|OP_M16},
+IT_BEG(NOT)
+//op1 = ~op2
+	ACTN1(ACTN_MOV)
+		OPND1(OPND_1)
+		ACTN1(ACTN_NOT)
+			OPND1(OPND_1)
+IT_END(NOT)
+
+// O R		
+IT_FRM(OR)//"Logical Inclusive OR",
+//	{R8_AL,		U_|OP_I8},
+//	{R16_AX,	U_|OP_I16},
+	{OP_R8,		U_|OP_I8},
+	{OP_M8,		U_|OP_I8},
+	{OP_R16,	U_|OP_I16},
+	{OP_M16,	U_|OP_I16},
+	{OP_R16,	S_|OP_I8},
+	{OP_M16,	S_|OP_I8},
+	{OP_R8,		OP_R8},
+	{OP_M8,		OP_R8},
+	{OP_R16,	OP_R16},
+	{OP_M16,	OP_R16},
+	{OP_R8,		OP_M8},
+	{OP_R16,	OP_M16},
+IT_BEG(OR)
+#if(FULLEXPAND)
+//op1 = op2|op3, csw(cf,of)=0
+	ACTN1(ACTN_COMMA)
+		ACTN4(ACTN_MOV, M_(F_PF|F_ZF|F_SF), 0)
+			OPND1(OPND_1)
+			ACTN1(ACTN_OR)
+				OPND1(OPND_1)
+				OPND1(OPND_2)
+		ACTN4(ACTN_MOV, M_(F_CF|F_OF), 0)
+			OPND3(FOPC_CPUSW, OPSZ_WORD, 0)
+			OPND3(OPC_IMM, OPSZ_WORD, 0)
+#else
+//(op1,csw(pf,zf,sf,cf,of))=op2|op3
+	ACTN4(ACTN_MOV, M_(F_PF|F_ZF|F_SF|F_CF|F_OF), 0)
+		OPND1(OPND_1)
+		ACTN1(ACTN_OR)
+			OPND1(OPND_1)
+			OPND1(OPND_2)
+#endif
+IT_END(OR)
+
+// P O P
+IT_FRM(POP)//"Pop Operand from the Stack"
+	{OP_M16},
+	{OP_R16},
+	{SREG_DS},
+	{SREG_ES},
+	{SREG_SS},
+	{SREG_FS},
+	{SREG_GS},
+IT_BEG(POP)
+//op1 = [sp]:2, sp+=2
+	ACTN4(ACTN_MOV, 0, __SP(1))//?!!
+		OPND1(OPND_1)
+		OPND3(OPC_SS | OPC_CPUREG, OPSZ_WORD, OFS(R_SP))
+IT_END(POP)
+
+// P O P A
+IT_FRM(POPA)
+IT_BEG(POPA)//"Pop all General Registers"
+//di=pop(),si=pop(),bp=pop(),sp+=2,bx=pop(),dx=pop(),cx=pop(),ax=pop()
+	ACTN1(ACTN_COMMA)
+		ACTN4(ACTN_MOV, 0, __SP(1))
+			OPND3(OPC_CPUREG, SIZ(R_DI), OFS(R_DI))
+			OPND3(OPC_SS | OPC_CPUREG, OPSZ_WORD, OFS(R_SP))
+		ACTN1(ACTN_COMMA)
+			ACTN4(ACTN_MOV, 0, __SP(1))
+				OPND3(OPC_CPUREG, SIZ(R_SI), OFS(R_SI))
+				OPND3(OPC_SS | OPC_CPUREG, OPSZ_WORD, OFS(R_SP))
+			ACTN1(ACTN_COMMA)
+				ACTN4(ACTN_MOV, 0, __SP(1))
+					OPND3(OPC_CPUREG, SIZ(R_BP), OFS(R_BP))
+					OPND3(OPC_SS | OPC_CPUREG, OPSZ_WORD, OFS(R_SP))
+				ACTN1(ACTN_COMMA)
+					ACTN4(ACTN_MOV, 0, __SP(1))
+						OPND3(OPC_CPUREG, OPSZ_WORD, OFS(R_SP))
+						ACTN1(ACTN_ADD)
+							OPND3(OPC_CPUREG, OPSZ_WORD, OFS(R_SP))
+							OPND3(OPC_IMM, OPSZ_WORD, 2)//stack_addr_size
+					ACTN1(ACTN_COMMA)
+						ACTN4(ACTN_MOV, 0, __SP(1))
+							OPND3(OPC_CPUREG, SIZ(R_BX), OFS(R_BX))
+							OPND3(OPC_SS | OPC_CPUREG, OPSZ_WORD, OFS(R_SP))
+						ACTN1(ACTN_COMMA)
+							ACTN4(ACTN_MOV, 0, __SP(1))
+								OPND3(OPC_CPUREG, SIZ(R_DX), OFS(R_DX))
+								OPND3(OPC_SS | OPC_CPUREG, OPSZ_WORD, OFS(R_SP))
+							ACTN1(ACTN_COMMA)
+								ACTN4(ACTN_MOV, 0, __SP(1))
+									OPND3(OPC_CPUREG, SIZ(R_CX), OFS(R_CX))
+									OPND3(OPC_SS | OPC_CPUREG, OPSZ_WORD, OFS(R_SP))
+								ACTN1(ACTN_COMMA)
+									ACTN4(ACTN_MOV, 0, __SP(1))
+										OPND3(OPC_CPUREG, SIZ(R_AX), OFS(R_AX))
+										OPND3(OPC_SS | OPC_CPUREG, OPSZ_WORD, OFS(R_SP))
+IT_END(POPA)
+
+// P U S H
+IT_FRM(PUSH)//"Push Operand onto the Stack"
+	{OP_R16},
+	{OP_M16},
+	{OP_I16},
+	{SREG_CS},
+	{SREG_SS},
+	{SREG_DS},
+	{SREG_ES},
+	{SREG_FS},
+	{SREG_GS},
+IT_BEG(PUSH)
+//sp-=2, [sp]:2=op1
+	ACTN4(ACTN_MOV, 0, __SP(-1))
+		OPND3(OPC_SS | OPC_CPUREG, OPSZ_WORD, OFS(R_SP))
+		OPND1(OPND_1)
+IT_END(PUSH)
+
+// P U S H A
+IT_FRM(PUSHA)	//"Push all General Registers"
+IT_BEG(PUSHA)
+//u16 = sp, push(ax), push(cx), push(dx), push(bx), push(u16), push(bp), push(si), push(di)
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_AUXREG, SIZ(R_U16), OFS(R_U16))
+			OPND3(OPC_CPUREG, SIZ(R_SP), OFS(R_SP))
+		ACTN1(ACTN_COMMA)
+			ACTN4(ACTN_MOV, 0, __SP(-1))
+				OPND3(OPC_SS | OPC_CPUREG, OPSZ_WORD, OFS(R_SP))
+				OPND3(OPC_CPUREG, SIZ(R_AX), OFS(R_AX))
+			ACTN1(ACTN_COMMA)
+				ACTN4(ACTN_MOV, 0, __SP(-1))
+					OPND3(OPC_SS | OPC_CPUREG, OPSZ_WORD, OFS(R_SP))
+					OPND3(OPC_CPUREG, SIZ(R_CX), OFS(R_CX))
+				ACTN1(ACTN_COMMA)
+					ACTN4(ACTN_MOV, 0, __SP(-1))
+						OPND3(OPC_SS | OPC_CPUREG, OPSZ_WORD, OFS(R_SP))
+						OPND3(OPC_CPUREG, SIZ(R_DX), OFS(R_DX))
+					ACTN1(ACTN_COMMA)
+						ACTN4(ACTN_MOV, 0, __SP(-1))
+							OPND3(OPC_SS | OPC_CPUREG, OPSZ_WORD, OFS(R_SP))
+							OPND3(OPC_CPUREG, SIZ(R_BX), OFS(R_BX))
+						ACTN1(ACTN_COMMA)
+							ACTN4(ACTN_MOV, 0, __SP(-1))
+								OPND3(OPC_SS | OPC_CPUREG, OPSZ_WORD, OFS(R_SP))
+								OPND3(OPC_AUXREG, SIZ(R_U16), OFS(R_U16))
+							ACTN1(ACTN_COMMA)
+								ACTN4(ACTN_MOV, 0, __SP(-1))
+									OPND3(OPC_SS | OPC_CPUREG, OPSZ_WORD, OFS(R_SP))
+									OPND3(OPC_CPUREG, SIZ(R_BP), OFS(R_BP))
+								ACTN1(ACTN_COMMA)
+									ACTN4(ACTN_MOV, 0, __SP(-1))
+										OPND3(OPC_SS | OPC_CPUREG, OPSZ_WORD, OFS(R_SP))
+										OPND3(OPC_CPUREG, SIZ(R_SI), OFS(R_SI))
+									ACTN1(ACTN_COMMA)
+										ACTN4(ACTN_MOV, 0, __SP(-1))
+											OPND3(OPC_SS | OPC_CPUREG, OPSZ_WORD, OFS(R_SP))
+											OPND3(OPC_CPUREG, SIZ(R_DI), OFS(R_DI))
+IT_END(PUSHA)
+
+// R E T N (1)
+IT_FRM(RETN)	//"Return from Procedure"
+IT_BEG(RETN)
+//sp+=sizeof(ptr_near), @return
+	ACTN4(ACTN_RET, 0, __SP(1))
+		OPND3(OPC_IMM, OPTYP_UINT16, 0)
+IT_END(RETN)
+
+//R E T N (2)
+IT_FRM2(RETN,2)	//"Return from Procedure"
+	{OP_I16},
+IT_BEG2(RETN,2)
+//sp += op1, sp+=sizeof(ptr_near), @return
+	ACTN4(ACTN_RET, 0, __SP(1))
+		OPND1(OPND_1)
+IT_END2(RETN,2)
+
+// R E T F (1)
+IT_FRM(RETF)	//"Return from Procedure"
+IT_BEG(RETF)
+//sp+=sizeof(ptr_far), @return
+	ACTN4(ACTN_RET, 0, __SP(2))
+		OPND3(OPC_IMM, OPTYP_UINT16, 0)
+IT_END(RETF)
+
+//R E T F (2)
+IT_FRM2(RETF,2)	//"Return from Procedure"
+	{OP_I16},
+IT_BEG2(RETF,2)
+//sp += op1, sp+=sizeof(ptr_far), @return
+	ACTN4(ACTN_RET, 0, __SP(2))
+		OPND1(OPND_1)
+IT_END2(RETF,2)
+
+// S A H F
+IT_FRM(SAHF)//"Store AH into Flags"
+IT_BEG(SAHF)
+	ACTN4(ACTN_MOV, M_(F_SF|F_ZF|F_AF|F_PF|F_CF), 0)
+		OPND3(FOPC_CPUSW, OPTYP_UINT16, 0)
+		OPND3(OPC_CPUREG, SIZ(R_AX), OFS(R_AX))
+IT_END(SAHF)
+
+// S A L (1)
+IT_FRM(SAL)//"Shift Arithmetic Left: Multiply by 2"
+	{_INT|OP_R8,	OP_1|MAKEOPSZ(OPSZ_BYTE)},
+	{_INT|OP_M8,	OP_1|MAKEOPSZ(OPSZ_BYTE)},
+	{_INT|OP_R16,	OP_1|MAKEOPSZ(OPSZ_WORD)},
+	{_INT|OP_M16,	OP_1|MAKEOPSZ(OPSZ_WORD)},
+IT_BEG(SAL)
+//op1 = op1<<op2
+	ACTN4(ACTN_MOV, M_(F_SF|F_ZF|F_PF|F_CF|F_OF), 0)
+		OPND1(OPND_1)
+		ACTN1(ACTN_SHL)
+			OPND1(OPND_1)
+			OPND1(OPND_2)
+IT_END(SAL)
+
+// S A L (2)
+IT_FRM2(SAL,2)//"Shift Arithmetic Left: Multiply by 2"
+	{_INT|OP_R8,	_INT|R8_CL},
+	{_INT|OP_M8,	_INT|R8_CL},
+	{_INT|OP_R8,	_INT|OP_I8},
+	{_INT|OP_M8,	_INT|OP_I8},
+	{_INT|OP_R16,	_INT|R8_CL},
+	{_INT|OP_M16,	_INT|R8_CL},
+	{_INT|OP_R16,	_INT|OP_I8},
+	{_INT|OP_M16,	_INT|OP_I8},
+IT_BEG2(SAL,2)
+//op1 = op1<<op2
+	ACTN4(ACTN_MOV, M_(F_SF|F_ZF|F_PF|F_CF), 0)
+		OPND1(OPND_1)
+		ACTN1(ACTN_SHL)
+			OPND1(OPND_1)
+			OPND1(OPND_2)
+IT_END2(SAL,2)
+
+// S A R (1)
+IT_FRM(SAR)//"Shift Arithmetic Right: Signed divide by 2"
+	{S_|OP_R8,		OP_1|MAKEOPSZ(OPSZ_BYTE)},
+	{S_|OP_M8,		OP_1|MAKEOPSZ(OPSZ_BYTE)},
+	{S_|OP_R16,		OP_1|MAKEOPSZ(OPSZ_WORD)},
+	{S_|OP_M16,		OP_1|MAKEOPSZ(OPSZ_WORD)},
+IT_BEG(SAR)
+//op1 = op1>>op2
+	ACTN4(ACTN_MOV, M_(F_SF|F_ZF|F_PF|F_CF|F_OF), 0)
+		OPND1(OPND_1)
+		ACTN1(ACTN_SHR)
+			OPND1(OPND_1)
+			OPND1(OPND_2)
+IT_END(SAR)
+
+// S A R (2)
+IT_FRM2(SAR,2)//"Shift Arithmetic Right: Signed divide by 2"
+	{S_|OP_R8,		_INT|R8_CL},
+	{S_|OP_M8,		_INT|R8_CL},
+	{S_|OP_R8,		_INT|OP_I8},
+	{S_|OP_M8,		_INT|OP_I8},
+	{S_|OP_R16,		_INT|R8_CL},
+	{S_|OP_M16,		_INT|R8_CL},
+	{S_|OP_R16,		_INT|OP_I8},
+	{S_|OP_M16,		_INT|OP_I8},
+IT_BEG2(SAR,2)
+//op1 = op1>>op2
+	ACTN4(ACTN_MOV, M_(F_SF|F_ZF|F_PF|F_CF), 0)
+		OPND1(OPND_1)
+		ACTN1(ACTN_SHR)
+			OPND1(OPND_1)
+			OPND1(OPND_2)
+IT_END2(SAR,2)
+
+// S B B
+IT_FRM(SBB)//"Integer Subtraction with Borrow"
+//	{_INT|R8_AL,	_INT|OP_I8},
+//	{_INT|R16_AX,	_INT|OP_I16},
+	{_INT|OP_R8,	_INT|OP_I8},
+	{_INT|OP_M8,	_INT|OP_I8},
+	{_INT|OP_R16,	_INT|OP_I16},
+	{_INT|OP_M16,	_INT|OP_I16},
+	{_INT|OP_R16,	S_|OP_I8},
+	{_INT|OP_M16,	S_|OP_I8},
+	{_INT|OP_R8,	_INT|OP_R8},
+	{_INT|OP_M8,	_INT|OP_R8},
+	{_INT|OP_R16,	_INT|OP_R16},
+	{_INT|OP_M16,	_INT|OP_R16},
+	{_INT|OP_R8,	_INT|OP_M8},
+	{_INT|OP_R16,	_INT|OP_M16},
+IT_BEG(SBB)
+//u?=op2+cf, op1 = op1-u?
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_AUXREG, SIZEOF(OPND_1), OFS(R_U32))
+			ACTN1(ACTN_ADD)
+				OPND1(OPND_2)
+				OPND3(RCL(R_CF), SIZ(R_CF), OFS(R_CF))
+		ACTN4(ACTN_MOV, M_(F_OF|F_SF|F_ZF|F_AF|F_PF|F_CF), 0)
+			OPND1(OPND_1)
+			ACTN1(ACTN_SUB)
+				OPND1(OPND_1)
+				OPND3(OPC_AUXREG, SIZEOF(OPND_1), OFS(R_U16))
+IT_END(SBB)
+
+//////////////////////
+// S C A S B (2) / R E P E
+IT_FRM2(SCASB,2)//"Compare String Data as Bytes while equal"
+IT_BEG2(SCASB,2)
+//scas(/di, al, cx/)
+	ACTN1(ACTN_CALL)
+		OPND4(OPC_ADDRESS|OPC_GLOBAL, OPTYP_PTR16, 0, "scas")
+		OPND0//ACTN1(ACTN_NULL)
+IT_END7(SCASB,2,PFX_REPE)
+
+// S C A S W (2) / R E P E
+IT_FRM2(SCASW,2)//"Compare String Data as Words while equal"
+IT_BEG2(SCASW,2)
+//cx=cx*2, scas(/di, ax, cx/)
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_CPUREG, OPTYP_UINT16, OFS(R_CX))
+			ACTN1(ACTN_MUL)
+				OPND3(OPC_CPUREG, OPTYP_UINT16, OFS(R_CX))
+				OPND3(OPC_IMM, OPTYP_UINT16, OPSZ_WORD)
+		ACTN1(ACTN_CALL)
+			OPND4(OPC_ADDRESS|OPC_GLOBAL, OPTYP_PTR16, 0, "scas")
+			OPND0//ACTN1(ACTN_NULL)
+IT_END7(SCASW,2,PFX_REPE)
+
+// S H L (1)
+IT_FRM(SHL)//"Shift Left: Multiply by 2"
+	{_INT|OP_R8,	OP_1|MAKEOPSZ(OPSZ_BYTE)},
+	{_INT|OP_M8,	OP_1|MAKEOPSZ(OPSZ_BYTE)},
+	{_INT|OP_R16,	OP_1|MAKEOPSZ(OPSZ_WORD)},
+	{_INT|OP_M16,	OP_1|MAKEOPSZ(OPSZ_WORD)},
+IT_BEG(SHL)
+//op1 = op1<<op2
+	ACTN4(ACTN_MOV, M_(F_SF|F_ZF|F_PF|F_CF|F_OF), 0)
+		OPND1(OPND_1)
+		ACTN1(ACTN_SHL)
+			OPND1(OPND_1)
+			OPND1(OPND_2)
+IT_END(SHL)
+
+// S H L (2)
+IT_FRM2(SHL,2)//"Shift Left: Multiply by 2"
+	{_INT|OP_R8,	_INT|R8_CL},
+	{_INT|OP_M8,	_INT|R8_CL},
+	{_INT|OP_R8,	_INT|OP_I8},
+	{_INT|OP_M8,	_INT|OP_I8},
+	{_INT|OP_R16,	_INT|R8_CL},
+	{_INT|OP_M16,	_INT|R8_CL},
+	{_INT|OP_R16,	_INT|OP_I8},
+	{_INT|OP_M16,	_INT|OP_I8},
+IT_BEG2(SHL,2)
+//op1 = op1<<op2
+	ACTN4(ACTN_MOV, M_(F_SF|F_ZF|F_PF|F_CF), 0)
+		OPND1(OPND_1)
+		ACTN1(ACTN_SHL)
+			OPND1(OPND_1)
+			OPND1(OPND_2)
+IT_END2(SHL,2)
+
+// S H R (1)
+IT_FRM(SHR)//"Shift Right: Unsigned divide by 2"
+	{U_|OP_R8,		OP_1|MAKEOPSZ(OPSZ_BYTE)},
+	{U_|OP_M8,		OP_1|MAKEOPSZ(OPSZ_BYTE)},
+	{U_|OP_R16,		OP_1|MAKEOPSZ(OPSZ_WORD)},
+	{U_|OP_M16,		OP_1|MAKEOPSZ(OPSZ_WORD)},
+IT_BEG(SHR)
+//op1 = op1>>op2
+	ACTN4(ACTN_MOV, M_(F_SF|F_ZF|F_PF|F_CF|F_OF), 0)
+		OPND1(OPND_1)
+		ACTN1(ACTN_SHR)
+			OPND1(OPND_1)
+			OPND1(OPND_2)
+IT_END(SHR)
+
+// S H R (2)
+IT_FRM2(SHR,2)//"Shift Right: Unsigned divide by 2"
+	{U_|OP_R8,		_INT|R8_CL},
+	{U_|OP_M8,		_INT|R8_CL},
+	{U_|OP_R8,		_INT|OP_I8},
+	{U_|OP_M8,		_INT|OP_I8},
+	{U_|OP_R16,		_INT|R8_CL},
+	{U_|OP_M16,		_INT|R8_CL},
+	{U_|OP_R16,		_INT|OP_I8},
+	{U_|OP_M16,		_INT|OP_I8},
+IT_BEG2(SHR,2)
+//op1 = op1>>op2
+	ACTN4(ACTN_MOV, M_(F_SF|F_ZF|F_PF|F_CF), 0)
+		OPND1(OPND_1)
+		ACTN1(ACTN_SHR)
+			OPND1(OPND_1)
+			OPND1(OPND_2)
+IT_END2(SHR,2)
+
+// S H L D
+IT_FRM(SHLD)	//"Double Precision Shift Left",
+	{U_|OP_R16,	U_|OP_R16,	_INT|OP_I8},
+	{U_|OP_M16,	U_|OP_R16,	_INT|OP_I8},
+	{U_|OP_R16,	U_|OP_R16,	_INT|R8_CL},
+	{U_|OP_M16,	U_|OP_R16,	_INT|R8_CL},
+IT_BEG(SHLD)
+//u16h=op1, u16l=op2, u16<<=op3, op1=u16h
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_AUXREG, SIZ(R_U16H), OFS(R_U16H))
+			OPND1(OPND_1)
+		ACTN1(ACTN_COMMA)
+			ACTN1(ACTN_MOV)
+				OPND3(OPC_AUXREG, SIZ(R_U16L), OFS(R_U16L))
+				OPND1(OPND_2)
+			ACTN1(ACTN_COMMA)
+				ACTN4(ACTN_MOV, M_(F_CF|F_PF|F_ZF|F_SF), 0)
+					OPND3(OPC_AUXREG, SIZ(R_U16), OFS(R_U16))
+					ACTN1(ACTN_SHL)
+						OPND3(OPC_AUXREG, SIZ(R_U16), OFS(R_U16))
+						OPND1(OPND_3)
+				ACTN1(ACTN_MOV)
+					OPND1(OPND_1)
+					OPND3(OPC_AUXREG, SIZ(R_U16H), OFS(R_U16H))
+IT_END(SHLD)
+
+// S H R D
+IT_FRM(SHRD)	//"Double Precision Shift Left",
+	{U_|OP_R16,	U_|OP_R16,	_INT|OP_I8},
+	{U_|OP_M16,	U_|OP_R16,	_INT|OP_I8},
+	{U_|OP_R16,	U_|OP_R16,	_INT|R8_CL},
+	{U_|OP_M16,	U_|OP_R16,	_INT|R8_CL},
+IT_BEG(SHRD)
+//u16l=op1, u16h=op2, u16=u16>>p3, op1=u16l
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_AUXREG, SIZ(R_U16L), OFS(R_U16L))
+			OPND1(OPND_1)
+		ACTN1(ACTN_COMMA)
+			ACTN1(ACTN_MOV)
+				OPND3(OPC_AUXREG, SIZ(R_U16H), OFS(R_U16H))
+				OPND1(OPND_2)
+			ACTN1(ACTN_COMMA)
+				ACTN4(ACTN_MOV, M_(F_CF|F_PF|F_ZF|F_SF), 0)
+					OPND3(OPC_AUXREG, SIZ(R_U16), OFS(R_U16))
+					ACTN1(ACTN_SHR)
+						OPND3(OPC_AUXREG, SIZ(R_U16), OFS(R_U16))
+						OPND1(OPND_3)
+				ACTN1(ACTN_MOV)
+					OPND1(OPND_1)
+					OPND3(OPC_AUXREG, SIZ(R_U16L), OFS(R_U16L))
+IT_END(SHRD)
+
+// S T C
+IT_FRM(STC)//"Set Carry Flag"
+IT_BEG(STC)
+//@CF = 1
+	ACTN4(ACTN_MOV, M_(F_CF), 0)
+		OPND3(RCL(R_CF), SIZ(R_CF), OFS(R_CF))
+		OPND3(OPC_IMM, OPSZ_WORD, 1)
+IT_END(STC)
+
+// S T D
+IT_FRM(STD)//"Clear Direction Flag"
+IT_BEG(STD)
+//@DF = 1
+	ACTN4(ACTN_MOV, M_(F_DF), 0)
+		OPND3(RCL(R_DF), SIZ(R_DF), OFS(R_DF))
+		OPND3(OPC_IMM, OPSZ_WORD, 1)
+IT_END(STD)
+
+// S T I
+IT_FRM(STI)//"Clear Interrupt Flag"
+IT_BEG(STI)
+//@IF = 1
+	ACTN4(ACTN_MOV, M_(F_IF), 0)
+		OPND3(FOPC_CPUSW, OPSZ_WORD, F_IF)
+		OPND3(OPC_IMM, OPSZ_WORD, 1)
+IT_END(STI)
+
+////////////////////////
+// S T O S B (2) / R E P N E
+IT_FRM2(STOSB,2)	//"Store String Data as Bytes while not equal"
+IT_BEG2(STOSB,2)
+//stos(/di, al, cx/)
+	ACTN1(ACTN_CALL)
+		OPND4(OPC_ADDRESS|OPC_GLOBAL, OPTYP_PTR16, 0, "stos")
+		OPND0//ACTN1(ACTN_NULL)
+IT_END7(STOSB,2,PFX_REPNE)
+
+// S T O S W (2) / R E P N E
+IT_FRM2(STOSW,2)	//"Store String Data as Words"
+IT_BEG2(STOSW,2)
+//cx=cx*2, stos(/di, ax, cx/)
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_CPUREG, OPTYP_UINT16, OFS(R_CX))
+			ACTN1(ACTN_MUL)
+				OPND3(OPC_CPUREG, OPTYP_UINT16, OFS(R_CX))
+				OPND3(OPC_IMM, OPTYP_UINT16, OPSZ_WORD)
+		ACTN1(ACTN_CALL)
+			OPND4(OPC_ADDRESS|OPC_GLOBAL, OPTYP_PTR16, 0, "stos")
+			OPND0//ACTN1(ACTN_NULL)
+IT_END7(STOSW,2,PFX_REPNE)
+
+// S U B
+IT_FRM(SUB)//"Integer Subtraction"
+//	{_INT|R8_AL,	_INT|OP_I8},	
+//	{_INT|R16_AX,	_INT|OP_I16},	
+	{_INT|OP_R8,	_INT|OP_I8},	
+	{_INT|OP_M8,	_INT|OP_I8},	
+	{_INT|OP_R16,	_INT|OP_I16},	
+	{_INT|OP_M16,	_INT|OP_I16},	
+	{_INT|OP_R16,	S_|OP_I8},	
+	{_INT|OP_M16,	S_|OP_I8},	
+	{_INT|OP_R8,	_INT|OP_R8},	
+	{_INT|OP_M8,	_INT|OP_R8},	
+	{_INT|OP_R16,	_INT|OP_R16},	
+	{_INT|OP_M16,	_INT|OP_R16},	
+	{_INT|OP_R8,	_INT|OP_M8},	
+	{_INT|OP_R16,	_INT|OP_M16},	
+IT_BEG(SUB)
+//op1=op1-op2
+	ACTN4(ACTN_MOV, M_(F_CF|F_PF|F_AF|F_ZF|F_SF|F_OF), 0)
+		OPND1(OPND_1)
+		ACTN1(ACTN_SUB)
+			OPND1(OPND_1)
+			OPND1(OPND_2)
+IT_END(SUB)
+
+// T E S T
+IT_FRM(TEST)//"Logical Compare"
+//	{R8_AL,		U_|OP_I8},
+//	{R16_AX,	U_|OP_I16},
+	{OP_R8,		U_|OP_I8},
+	{OP_M8,		U_|OP_I8},
+	{OP_R16,	U_|OP_I16},
+	{OP_M16,	U_|OP_I16},
+	{OP_R8,		OP_R8},
+	{OP_M8,		OP_R8},
+	{OP_R16,	OP_R16},
+	{OP_M16,	OP_R16},
+IT_BEG(TEST)
+#if(FULLEXPAND)
+//csw(cf,pf,sf)~~op1&op2, csw(cf,of)= 0
+	ACTN1(ACTN_COMMA)
+		ACTN4(ACTN_CHECK, M_(F_PF|F_ZF|F_SF), 0)
+			OPND3(FOPC_CPUSW, OPSZ_WORD, 0)
+			ACTN1(ACTN_AND)
+				OPND1(OPND_1)
+				OPND1(OPND_2)
+		ACTN4(ACTN_MOV, M_(F_CF|F_OF), 0)
+			OPND3(FOPC_CPUSW, OPSZ_WORD, 0)
+			OPND3(OPC_IMM, OPSZ_WORD, 0)
+#else
+//csw(cf,pf,sf,cf,of)~~op1&op2
+	ACTN4(ACTN_CHECK, M_(F_PF|F_ZF|F_SF|F_CF|F_OF), 0)
+		OPND3(FOPC_CPUSW, OPSZ_WORD, 0)
+		ACTN1(ACTN_AND)
+			OPND1(OPND_1)
+			OPND1(OPND_2)
+#endif
+IT_END(TEST)
+
+// X A D D
+IT_FRM(XADD)//"Exchange and Add"
+	{_INT|OP_R8,	_INT|OP_R8},
+	{_INT|OP_M8,	_INT|OP_R8},
+	{_INT|OP_R16,	_INT|OP_R16},
+	{_INT|OP_M16,	_INT|OP_R16},
+IT_BEG(XADD)
+//u?=op1+op2, op2=op1, op1=u?
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_AUXREG, SIZEOF(OPND_1), OFS(R_U32))
+			ACTN4(ACTN_ADD, M_(F_CF|F_PF|F_AF|F_ZF|F_SF|F_OF), 0)
+				OPND1(OPND_1)
+				OPND1(OPND_2)
+		ACTN1(ACTN_COMMA)
+			ACTN1(ACTN_MOV)
+				OPND1(OPND_2)
+				OPND1(OPND_1)
+			ACTN1(ACTN_MOV)
+				OPND1(OPND_1)
+				OPND3(OPC_AUXREG, SIZEOF(OPND_1), OFS(R_U16))
+IT_END(XADD)
+
+// X C H G
+IT_FRM(XCHG)//"Exchange Register/Memory with Register",
+//	{R16_AX,	OP_R16},
+//	{OP_R16,	R16_AX},
+	{OP_R8,		OP_R8},
+	{OP_M8,		OP_R8},
+	{OP_R8,		OP_M8},
+	{OP_R16,	OP_R16},
+	{OP_M16,	OP_R16},
+	{OP_R16,	OP_M16},
+IT_BEG(XCHG)
+//u?=op1, op1=op2, op2=u?
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_AUXREG, SIZEOF(OPND_1), OFS(R_U16))
+			OPND1(OPND_1)
+		ACTN1(ACTN_COMMA)
+			ACTN1(ACTN_MOV)
+				OPND1(OPND_1)
+				OPND1(OPND_2)
+			ACTN1(ACTN_MOV)
+				OPND1(OPND_2)
+				OPND3(OPC_AUXREG, SIZEOF(OPND_1), OFS(R_U16))
+IT_END(XCHG)
+
+// X O R
+IT_FRM(XOR)//"Logical Exclusive OR"
+//	{_INT|R8_AL,	_INT|OP_I8},
+//	{_INT|R16_AX,	_INT|OP_I16},
+	{_INT|OP_R8,	_INT|OP_I8},
+	{_INT|OP_M8,	_INT|OP_I8},
+	{_INT|OP_R16,	_INT|OP_I16},
+	{_INT|OP_M16,	_INT|OP_I16},
+	{_INT|OP_R16,	S_|OP_I8},
+	{_INT|OP_M16,	S_|OP_I8},
+	{_INT|OP_R8,	_INT|OP_R8},
+	{_INT|OP_M8,	_INT|OP_R8},
+	{_INT|OP_R16,	_INT|OP_R16},
+	{_INT|OP_M16,	_INT|OP_R16},
+	{_INT|OP_R8,	_INT|OP_M8},
+	{_INT|OP_R16,	_INT|OP_M16},
+IT_BEG(XOR)
+//op1=op2^op3
+	ACTN4(ACTN_MOV, M_(F_SF|F_ZF|F_PF), 0)
+		OPND1(OPND_1)
+		ACTN1(ACTN_XOR)
+			OPND1(OPND_1)
+			OPND1(OPND_2)
+IT_END(XOR)
+
+}//namespace x86_16
+
+

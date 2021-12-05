@@ -1,0 +1,23 @@
+
+[x] snowman: 'std' should be present in both debug_info.h and imports.h
+
+*) [cfs2/MODULES/ai_playr] 20663fd0: makefunc is incorrect;
+*) [utils/ResHack/ResHacker.exe] 40529e: data type size > 8 causes exception;
+
+*) mig/ex10/src/file1.h:167
+struct struc_6908 {
+	DWORD	m0h;
+	unexplored(4, 4);
+	UNK	m8h;
+};//SIZE:1			<==???
+
+*) decoder_pe: missing Leave() causes a crash
+
+
+http://www.openrce.org/articles/full_view/23
+
+cfc2 mfc42!fom_exports.cpp:
+[x] void __noproto func_6BC59395/*6BC59395*/(){}
+
+pdb/ex01 MFC42d.dll!from_imports.h:
+__declspec(dllimport) UNK_ [7]_onexit#422|1;

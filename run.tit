@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+
+<Session
+	SourceRootDir="C:\Users\Andrey\work\adc\tests\pdb\"
+	TargetRootDir="C:\Users\Andrey\work\adc\.out\pdb\"
+	RefRootDir="C:\Users\Andrey\work\adc\golden\pdb\"
+	HiddenDirs="CVS"
+	DiffCommand="C:\Users\Andrey\work\adc\utils\WinMerge\WinMergeU.exe /e $(TargetPath) $(RefPath)"
+	Clopts=""
+	>
+	<Stage
+		Title="Copy Files"
+		ExtList="s;proto"
+		TargetDirs="$(SrcRootDir);$(OutRootDir)"
+		Command="cmd.exe /c copy /b /y $(SrcPath) $(OutPath)"
+		Disabled="true"
+		ProcNum="0"
+		/>
+	<Stage
+		Title="Run Optimized"
+		ExtList="s"
+		TargetDirs="$(SrcRootDir);$(OutRootDir)"
+		Command="c:\Users\Andrey\work\adc\.build\v142\Win32\Release\adc.exe -b -t -s $(SrcPath) -o $(OutStem).out"
+		Disabled="false"
+		ProcNum="0"
+		/>
+	<Stage
+		Title="Run Diff"
+		ExtList="out;h;cpp;l;lst"
+		TargetDirs="$(OutRootDir);$(RefRootDir)"
+		Command="c:\Users\Andrey\work\adc\utils\WinMerge\WinMergeU.exe $(OutPath) $(RefPath)"
+		Disabled="true"
+		ProcNum="0"
+		/>
+	</Session>

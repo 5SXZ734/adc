@@ -1,0 +1,380 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="cvdump">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="extern">
+      <UniqueIdentifier>{f97d84f2-be13-4670-b17b-8bc7235ab8e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{5d0c60ba-9f85-4d1d-91dc-a0e935b3100b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="langapi">
+      <UniqueIdentifier>{69a18312-5ba2-497f-901b-e28d9ad67c14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="langapi\include">
+      <UniqueIdentifier>{58661caa-7c39-47ba-8a3e-89a61a7a3c98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="langapi\shared">
+      <UniqueIdentifier>{0907fcd0-b7bc-49ed-b5c4-c276921d4e30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PDB">
+      <UniqueIdentifier>{c550400e-b894-4e31-b76a-5c9f923d064e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pdbdump">
+      <UniqueIdentifier>{d3018dd7-63d8-45d2-bc44-19ae9aafbdc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PDB\dbi">
+      <UniqueIdentifier>{cb44818a-a580-4f60-9877-927109a27ddf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PDB\include">
+      <UniqueIdentifier>{e3a531f6-5f6c-42e9-848b-727639612c91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PDB\msf">
+      <UniqueIdentifier>{49ca01a2-4ee0-413c-bc2f-bfceb7e63cdd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cvdump.h">
+      <Filter>cvdump</Filter>
+    </ClInclude>
+    <ClInclude Include="cvtdef.h">
+      <Filter>cvdump</Filter>
+    </ClInclude>
+    <ClInclude Include="debsym.h">
+      <Filter>cvdump</Filter>
+    </ClInclude>
+    <ClInclude Include="output.h">
+      <Filter>cvdump</Filter>
+    </ClInclude>
+    <ClInclude Include="symrec.h">
+      <Filter>cvdump</Filter>
+    </ClInclude>
+    <ClInclude Include="typeinfo.h">
+      <Filter>cvdump</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extern\cvexefmt.h">
+      <Filter>extern</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extern\ecoff.h">
+      <Filter>extern</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extern\safestk.h">
+      <Filter>extern</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extern\version.h">
+      <Filter>extern</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cvconst.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cvinfo.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\vcver.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\langapi\include\pdb.h">
+      <Filter>langapi\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\langapi\shared\crc32.h">
+      <Filter>langapi\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\dbi\dbi.h">
+      <Filter>PDB\dbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\dbi\dbiimpl.h">
+      <Filter>PDB\dbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\dbi\gsi.h">
+      <Filter>PDB\dbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\dbi\locator.h">
+      <Filter>PDB\dbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\dbi\mli.h">
+      <Filter>PDB\dbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\dbi\mod.h">
+      <Filter>PDB\dbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\dbi\pdb1.h">
+      <Filter>PDB\dbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\dbi\stream.h">
+      <Filter>PDB\dbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\dbi\tm.h">
+      <Filter>PDB\dbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\dbi\tpi.h">
+      <Filter>PDB\dbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\dbi\udtrefs.h">
+      <Filter>PDB\dbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\dbi\util.h">
+      <Filter>PDB\dbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\array.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\assert_.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\buffer.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\cbitvect.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\critsec.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\crtfubar.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\crtwrap.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\cvhelper.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\cvlines.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\dbicommon.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\enum.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\gsicommon.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\indbuf.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\iset.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\map.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\mapfile.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\mdalign.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\misc.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\modcommon.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\mrcommon.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\msf.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\mts.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\nmt.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\nmtni.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\objfile.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\output.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\pdbcommon.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\pdbguid.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\pdbheap.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\pdbimpl.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\pdblog.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\pdbtypdefs.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\pdbver.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\pool.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\poolcpy.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\ptr.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\set.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\srccommon.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\srcimpl.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\StrConvBuf.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\symtypeutils.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\syncro.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\SysPage.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\szcanon.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\szst.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\trace.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\two.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\utf8.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\include\xheap.h">
+      <Filter>PDB\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PDB\msf\istream.h">
+      <Filter>PDB\msf</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cvdump.cpp">
+      <Filter>cvdump</Filter>
+    </ClCompile>
+    <ClCompile Include="dumppdb.cpp">
+      <Filter>cvdump</Filter>
+    </ClCompile>
+    <ClCompile Include="dumpsym6.cpp">
+      <Filter>cvdump</Filter>
+    </ClCompile>
+    <ClCompile Include="dumpsym7.cpp">
+      <Filter>cvdump</Filter>
+    </ClCompile>
+    <ClCompile Include="dumptyp6.cpp">
+      <Filter>cvdump</Filter>
+    </ClCompile>
+    <ClCompile Include="dumptyp7.cpp">
+      <Filter>cvdump</Filter>
+    </ClCompile>
+    <ClCompile Include="output.cpp">
+      <Filter>cvdump</Filter>
+    </ClCompile>
+    <ClCompile Include="type6.cpp">
+      <Filter>cvdump</Filter>
+    </ClCompile>
+    <ClCompile Include="type7.cpp">
+      <Filter>cvdump</Filter>
+    </ClCompile>
+    <ClCompile Include="utils.cpp">
+      <Filter>cvdump</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdbdump\pdbdump.cpp">
+      <Filter>pdbdump</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PDB\dbi\cbind.cpp">
+      <Filter>PDB\dbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PDB\dbi\dbi.cpp">
+      <Filter>PDB\dbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PDB\dbi\dbicommon.cpp">
+      <Filter>PDB\dbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PDB\dbi\dbipch.cpp">
+      <Filter>PDB\dbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PDB\dbi\gsi.cpp">
+      <Filter>PDB\dbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PDB\dbi\heap.cpp">
+      <Filter>PDB\dbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PDB\dbi\locator.cpp">
+      <Filter>PDB\dbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PDB\dbi\mli.cpp">
+      <Filter>PDB\dbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PDB\dbi\mod.cpp">
+      <Filter>PDB\dbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PDB\dbi\modcommon.cpp">
+      <Filter>PDB\dbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PDB\dbi\pdb.cpp">
+      <Filter>PDB\dbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PDB\dbi\pdbcommon.cpp">
+      <Filter>PDB\dbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PDB\dbi\pdbmain.cpp">
+      <Filter>PDB\dbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PDB\dbi\src.cpp">
+      <Filter>PDB\dbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PDB\dbi\stream.cpp">
+      <Filter>PDB\dbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PDB\dbi\tm.cpp">
+      <Filter>PDB\dbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PDB\dbi\tpi.cpp">
+      <Filter>PDB\dbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PDB\dbi\udtrefs.cpp">
+      <Filter>PDB\dbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PDB\msf\mapfile.cpp">
+      <Filter>PDB\msf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PDB\msf\msf.cpp">
+      <Filter>PDB\msf</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="cvdump.rc">
+      <Filter>cvdump</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="..\pdbdump\pdbdump.rc">
+      <Filter>pdbdump</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\PDB\dbi\def.dat">
+      <Filter>PDB\dbi</Filter>
+    </None>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,1227 @@
+
+//included in cpu.cpp
+
+#define ID2OFFS(t)		((OPTYP_REAL80&0xF)*t)
+
+#define OPND_FTOP		OPND3(OPC_FTOPREG, SIZ(R_FTOP), RID(R_FTOP))
+#define OPND_I_FTOPi(t) {ACTN_NULL, OPC_INDIRECT|OPC_FTOPREG, OPTYP_REAL80, RID(R_FTOP), t, (OPTYP_REAL80&0xF), 0, 0, NULL},
+#define OPND_I_FTOP		OPND_I_FTOPi(0)
+#define OPND_I_FTOPr(t)	{ACTN_NULL, OPC_INDIRECT|OPC_FTOPREG, OPTYP_REAL80, RID(R_FTOP), -t, (OPTYP_REAL80&0xF), 0, 0, NULL},
+
+
+#define __FREG(arg)	MAKEOPC(OPC_FPUREG)|MAKEOPTYP(OPTYP_REAL80)|MAKEOPID(arg)
+enum FPURegs_t {
+	OP_STi = __FREG(0),
+	OP_ST = __FREG(1),	//ST
+	OP_ST1 = __FREG(2),	//ST(i)
+	OP_ST2 = __FREG(3),	//ST(i)
+	OP_ST3 = __FREG(4),	//ST(i)
+	OP_ST4 = __FREG(5),	//ST(i)
+	OP_ST5 = __FREG(6),	//ST(i)
+	OP_ST6 = __FREG(7),	//ST(i)
+	OP_ST7 = __FREG(8)};//ST(i)
+
+
+
+// F 2 X M 1
+IT_FRM(F2XM1)//"Compute 2^x–1"
+IT_BEG(F2XM1)
+//[ftop]=f2xm1([ftop])
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_2XM1)
+			OPND_I_FTOP
+IT_END(F2XM1)
+
+// F A B S
+IT_FRM(FABS)//"Absolute Value"
+IT_BEG(FABS)
+//[ftop] = fabs([ftop])
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_ABS)
+			OPND_I_FTOP
+IT_END(FABS)
+
+// F A D D (1)
+IT_FRM(FADD)//"Add Real"
+	{OP_M32REAL},
+	{OP_M64REAL},
+IT_BEG(FADD)
+//[ftop] = [ftop]+op1
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_ADD)
+			OPND_I_FTOP
+			OPND1(OPND_1)
+IT_END(FADD)
+
+// F A D D (2)
+IT_FRM2(FADD,2)//"Add Real"
+	{OP_ST,		OP_STi},	//f[0]=f[0]+f[i]
+	{OP_STi,	OP_ST},		//f[i]=f[i]+f[0]
+IT_BEG2(FADD,2)
+//[ftop+offs(op1)] = [ftop+offs(op1)]+[ftop+offs(op2)]
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOPr(OPND_1)
+		ACTN1(ACTN_ADD)
+			OPND_I_FTOPr(OPND_1)
+			OPND_I_FTOPr(OPND_2)
+IT_END2(FADD,2)
+
+// F A D D P (1)
+IT_FRM(FADDP)//"Add Real & Pop"
+	{OP_STi,	OP_ST},
+IT_BEG(FADDP)
+//[ftop+offs(op1)]=[ftop+offs(op1)]+[ftop], ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOPr(OPND_1)
+			ACTN1(ACTN_ADD)
+				OPND_I_FTOPr(OPND_1)
+				OPND_I_FTOP
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END(FADDP)
+
+// F A D D P (2)
+IT_FRM2(FADDP,2)//"Add Real & Pop"
+IT_BEG2(FADDP,2)
+//[ftop+1]=[ftop+1]+[ftop], ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOPi(1)
+			ACTN1(ACTN_ADD)
+				OPND_I_FTOPi(OPND_1)
+				OPND_I_FTOP
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END2(FADDP,2)
+
+// F I A D D
+IT_FRM(FIADD)//"Add Integer"
+	{OP_M32INT},
+	{OP_M16INT},
+IT_BEG(FIADD)
+//[ftop]=[ftop]+op1
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_ADD)
+			OPND_I_FTOP
+			OPND1(OPND_1)
+IT_END(FIADD)
+
+// F B L D
+IT_FRM(FBLD)//"Load Binary Coded Decimal"
+	{OP_M80DEC},
+IT_BEG(FBLD)
+//ftop--, [ftop]=op1
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_SUB)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOP
+			OPND1(OPND_1)
+IT_END(FBLD)
+
+// F B S T P
+IT_FRM(FBSTP)//"Store Binary Coded Decimal and Pop"
+	{OP_M80DEC},
+IT_BEG(FBSTP)
+//op1=[ftop], ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND1(OPND_1)
+			OPND_I_FTOP
+	ACTN1(ACTN_MOV)
+		OPND_FTOP
+		ACTN1(ACTN_ADD)
+			OPND_FTOP
+			OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END(FBSTP)
+
+// F C H S
+IT_FRM(FCHS)//"Change Sign"
+IT_BEG(FCHS)
+//[ftop]=-[ftop]
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_CHS)
+			OPND_I_FTOP
+IT_END(FCHS)
+
+// F C O M (1)
+IT_FRM(FCOM)//"Compare Real"
+	{OP_M32REAL},		
+	{OP_M64REAL},
+IT_BEG(FCOM)
+//fsw~~[ftop]-op1
+	ACTN4(ACTN_CHECK, C_(FPUSW_C0|FPUSW_C2|FPUSW_C3), 0)
+		OPND3(OPC_FPUSW, OPSZ_WORD, 0)
+		ACTN1(ACTN_SUB)
+			OPND_I_FTOP
+			OPND1(OPND_1)
+IT_END(FCOM)
+
+// F C O M (2)
+IT_FRM2(FCOM,2)//"Compare Real"
+	{OP_STi},
+IT_BEG2(FCOM,2)
+//fsw~~[ftop]-[ftop+offs(op1)]
+	ACTN4(ACTN_CHECK, C_(FPUSW_C0|FPUSW_C2|FPUSW_C3), 0)
+		OPND3(OPC_FPUSW, OPSZ_WORD, 0)
+		ACTN1(ACTN_SUB)
+			OPND_I_FTOP
+			OPND_I_FTOPr(OPND_1)
+IT_END2(FCOM,2)
+
+// F C O M (3)
+IT_FRM2(FCOM,3)//"Compare Real"
+IT_BEG2(FCOM,3)
+//fsw~~[ftop]-[ftop+1]
+	ACTN4(ACTN_CHECK, C_(FPUSW_C0|FPUSW_C2|FPUSW_C3), 0)
+		OPND3(OPC_FPUSW, OPSZ_WORD, 0)
+		ACTN1(ACTN_SUB)
+			OPND_I_FTOP
+			OPND_I_FTOPi(OPND_1)
+IT_END2(FCOM,3)
+
+// F C O M P (1)
+IT_FRM(FCOMP)//"Compare Real & Pop"
+	{OP_M32REAL},		
+	{OP_M64REAL},
+IT_BEG(FCOMP)
+//fsw~~[ftop]-op1, ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN4(ACTN_CHECK, C_(FPUSW_C0|FPUSW_C2|FPUSW_C3), 0)
+			OPND3(OPC_FPUSW, OPSZ_WORD, 0)
+			ACTN1(ACTN_SUB)
+				OPND_I_FTOP
+				OPND1(OPND_1)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END(FCOMP)
+
+// F C O M P (2)
+IT_FRM2(FCOMP,2)//"Compare Real & Pop"
+	{OP_STi},	
+IT_BEG2(FCOMP,2)
+//fsw~~[ftop]-[ftop+offs(op1)], ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN4(ACTN_CHECK, C_(FPUSW_C0|FPUSW_C2|FPUSW_C3), 0)
+			OPND3(OPC_FPUSW, OPSZ_WORD, 0)
+			ACTN1(ACTN_SUB)
+				OPND_I_FTOP
+				OPND_I_FTOPr(OPND_1)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END2(FCOMP,2)
+
+// F C O M P (3)
+IT_FRM2(FCOMP,3)//"Compare Real & Pop"
+IT_BEG2(FCOMP,3)
+//fsw~~[ftop]-[ftop+1], ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN4(ACTN_CHECK, C_(FPUSW_C0|FPUSW_C2|FPUSW_C3), 0)
+			OPND3(OPC_FPUSW, OPSZ_WORD, 0)
+			ACTN1(ACTN_SUB)
+				OPND_I_FTOP
+				OPND_I_FTOPi(OPND_1)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END2(FCOMP,3)
+
+// F C O M P (4)
+IT_FRM2(FCOMP,4)
+	{OP_ST,		OP_STi},
+IT_BEG2(FCOMP,4)
+//fsw~~[ftop]-[ftop+offs(op1)], ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN4(ACTN_CHECK, C_(FPUSW_C0|FPUSW_C2|FPUSW_C3), 0)
+			OPND3(OPC_FPUSW, OPSZ_WORD, 0)
+			ACTN1(ACTN_SUB)
+				OPND_I_FTOPr(OPND_1)
+				OPND_I_FTOPr(OPND_2)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END2(FCOMP,4)
+
+// F C O M P P
+IT_FRM(FCOMPP)//"Compare Real & Pop Twice"
+IT_BEG(FCOMPP)
+//fsw~~[ftop]-[ftop+1], ftop+=2
+	ACTN1(ACTN_COMMA)
+		ACTN4(ACTN_CHECK, C_(FPUSW_C0|FPUSW_C2|FPUSW_C3), 0)
+			OPND3(OPC_FPUSW, OPSZ_WORD, 0)
+			ACTN1(ACTN_SUB)
+				OPND_I_FTOP
+				OPND_I_FTOPi(OPND_1)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(2))
+IT_END(FCOMPP)
+
+// F C O M P P (2) //? 
+IT_FRM2(FCOMPP,2)//"Compare Real & Pop Twice"
+	{OP_ST1,	OP_ST},	
+IT_BEG2(FCOMPP,2)
+//fsw~~[ftop]-[ftop+1], ftop+=2
+	ACTN1(ACTN_COMMA)
+		ACTN4(ACTN_CHECK, C_(FPUSW_C0|FPUSW_C2|FPUSW_C3), 0)
+			OPND3(OPC_FPUSW, OPSZ_WORD, 0)
+			ACTN1(ACTN_SUB)
+				OPND_I_FTOP
+				OPND_I_FTOPr(OPND_1)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(2))
+IT_END2(FCOMPP,2)
+
+// F C O S
+IT_FRM(FCOS)//"Cosine"
+IT_BEG(FCOS)
+//[ftop]=cos([ftop])
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_COS)
+			OPND_I_FTOP
+IT_END(FCOS)
+
+// F D I V (1)
+IT_FRM(FDIV)//"Divide Real"
+	{OP_M32REAL},
+	{OP_M64REAL},
+IT_BEG(FDIV)
+//[ftop]=[ftop]/op1
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_DIV)
+			OPND_I_FTOP
+			OPND1(OPND_1)
+IT_END(FDIV)
+
+// F D I V (2)
+IT_FRM2(FDIV,2)//"Divide Real"
+	{OP_ST,		OP_STi},	
+	{OP_STi,	OP_ST},	
+IT_BEG2(FDIV,2)
+//[ftop+offs(op1)]=[ftop+offs(op1)]/[ftop+offs(op2)]
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOPr(OPND_1)
+		ACTN1(ACTN_DIV)
+			OPND_I_FTOPr(OPND_1)
+			OPND_I_FTOPr(OPND_2)
+IT_END2(FDIV,2)
+
+// F D I V P (1)
+IT_FRM(FDIVP)//"Divide Real & Pop"
+	{OP_STi,	OP_ST},	
+IT_BEG(FDIVP)
+//[ftop+offs(op1)] = [ftop+offs(op1)]/[ftop], ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN4(ACTN_MOV, 0, 0)
+			OPND_I_FTOPr(OPND_1)
+			ACTN1(ACTN_DIV)
+				OPND_I_FTOPr(OPND_1)
+				OPND_I_FTOP
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END(FDIVP)
+
+// F D I V P (2)
+IT_FRM2(FDIVP,2)//"Divide Real & Pop"
+IT_BEG2(FDIVP,2)
+//[ftop+1] = [ftop+1]/[ftop], ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN4(ACTN_MOV, 0, 0)
+			OPND_I_FTOPi(OPND_1)
+			ACTN1(ACTN_DIV)
+				OPND_I_FTOPi(OPND_1)
+				OPND_I_FTOP
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END2(FDIVP,2)
+
+// F I D I V
+IT_FRM(FIDIV)//"Divide Integer"
+	{OP_M32INT},	
+	{OP_M16INT},	
+IT_BEG(FIDIV)
+//[ftop]=[ftop]/op1
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_DIV)
+			OPND_I_FTOP
+			OPND1(OPND_1)
+IT_END(FIDIV)
+
+// F D I V R (1)
+IT_FRM(FDIVR)	//"Reverse Divide Real"
+	{OP_M32REAL},
+	{OP_M64REAL},
+IT_BEG(FDIVR)
+//[ftop]=op1/[ftop]
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_DIV)
+			OPND1(OPND_1)
+			OPND_I_FTOP
+IT_END(FDIVR)
+
+// F D I V R (2)
+IT_FRM2(FDIVR,2)	//"Reverse Divide Real"
+	{OP_ST,		OP_STi},	
+	{OP_STi,	OP_ST},	
+IT_BEG2(FDIVR,2)
+//[ftop+offs(op1)]=[ftop+offs(op2)]/[ftop+offs(op1)]
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOPr(OPND_1)
+		ACTN1(ACTN_DIV)
+			OPND_I_FTOPr(OPND_2)
+			OPND_I_FTOPr(OPND_1)
+IT_END2(FDIVR,2)
+
+// F D I V R P (1)
+IT_FRM(FDIVRP)//"Reverse Divide Real & Pop"
+IT_BEG(FDIVRP)
+//[ftop+1]=[ftop]/[ftop+1], ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOPi(OPND_1)
+			ACTN1(ACTN_DIV)
+				OPND_I_FTOP
+				OPND_I_FTOPi(OPND_1)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END(FDIVRP)
+
+// F D I V R P (2)
+IT_FRM2(FDIVRP,2)//"Reverse Divide Real & Pop"
+	{OP_STi,	OP_ST},	
+IT_BEG2(FDIVRP,2)
+//[ftop+offs(op1)]=[ftop]/[ftop+offs(op1)], ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOPr(OPND_1)
+			ACTN1(ACTN_DIV)
+				OPND_I_FTOP
+				OPND_I_FTOPr(OPND_1)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END2(FDIVRP,2)
+
+// F I D I V R
+IT_FRM(FIDIVR)//"Reverse Divide Integer"
+	{OP_M32INT},	
+	{OP_M16INT},	
+IT_BEG(FIDIVR)
+//[ftop]=op1/[ftop]
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_DIV)
+			OPND1(OPND_1)
+			OPND_I_FTOP
+IT_END(FIDIVR)
+
+// F I C O M
+IT_FRM(FICOM)//"Compare Integer"
+	{OP_M16INT},
+	{OP_M32INT},
+IT_BEG(FICOM)
+//fsw~~[ftop]-op1
+	ACTN4(ACTN_CHECK, C_(FPUSW_C0|FPUSW_C2|FPUSW_C3), 0)
+		OPND3(OPC_FPUSW, OPSZ_WORD, 0)
+		ACTN1(ACTN_SUB)
+			OPND_I_FTOP
+			OPND1(OPND_1)
+IT_END(FICOM)
+
+// F I C O M P
+IT_FRM(FICOMP)//"Compare Integer & Pop"
+	{OP_M16INT},
+	{OP_M32INT},
+IT_BEG(FICOMP)
+//fsw~~[ftop]-op1, ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN4(ACTN_CHECK, C_(FPUSW_C0|FPUSW_C2|FPUSW_C3), 0)
+			OPND3(OPC_FPUSW, OPSZ_WORD, 0)
+			ACTN1(ACTN_SUB)
+				OPND_I_FTOP
+				OPND1(OPND_1)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END(FICOMP)
+
+// F I L D
+IT_FRM(FILD)//"Load Integer"
+	{OP_M16INT},
+	{OP_M32INT},
+	{OP_M64INT},
+IT_BEG(FILD)
+//ftop--, [ftop]=op1
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_SUB)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOP
+			OPND1(OPND_1)
+IT_END(FILD)
+
+// F I M U L
+IT_FRM(FIMUL)//"Multiply Integer"
+	{OP_M32INT},
+	{OP_M16INT},
+IT_BEG(FIMUL)
+//[ftop]=[ftop]*op1
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_MUL)
+			OPND_I_FTOP
+			OPND1(OPND_1)
+IT_END(FIMUL)
+
+// F I S T
+IT_FRM(FIST)//"Store Integer"
+	{OP_M16INT},
+	{OP_M32INT},
+IT_BEG(FIST)
+//op1=[ftop]
+	ACTN1(ACTN_MOV)
+		OPND1(OPND_1)
+		OPND_I_FTOP
+IT_END(FIST)
+
+// F I S T P
+IT_FRM(FISTP)//"Store Integer & Pop"
+	{OP_M16INT},
+	{OP_M32INT},
+	{OP_M64INT},
+IT_BEG(FISTP)
+//op1=[ftop], ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND1(OPND_1)
+			OPND_I_FTOP
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END(FISTP)
+
+// F I S U B
+IT_FRM(FISUB)//"Subtract Integer"
+	{OP_M32INT},
+	{OP_M16INT},
+IT_BEG(FISUB)
+//[ftop]=[ftop]-op1
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_SUB)
+			OPND_I_FTOP
+			OPND1(OPND_1)	
+IT_END(FISUB)
+
+// F I S U B R
+IT_FRM(FISUBR)//"Reverse Subtract Integer"
+	{OP_M32INT},
+	{OP_M16INT},
+IT_BEG(FISUBR)
+//[ftop]=op1-[ftop]
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_SUB)
+			OPND1(OPND_1)	
+			OPND_I_FTOP
+IT_END(FISUBR)
+
+// F L D
+IT_FRM(FLD)//"Load Real"
+	{OP_M32REAL},
+	{OP_M64REAL},
+	{OP_M80REAL},
+IT_BEG(FLD)
+//ftop=ftop-1, [ftop]=op1
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_SUB)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOP
+			OPND1(OPND_1)
+IT_END(FLD)
+
+// F L D
+IT_FRM2(FLD,2)//"Load Real"
+	{OP_STi},
+IT_BEG2(FLD,2)
+//u=[ftop+offs(op1)], ftop=ftop-1, [ftop]=u
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_AUXREG, SIZ(R_U64), RID(R_U64))
+			OPND_I_FTOPr(OPND_1)
+		ACTN1(ACTN_COMMA)
+			ACTN1(ACTN_MOV)
+				OPND_FTOP
+				ACTN1(ACTN_SUB)
+					OPND_FTOP
+					OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+			ACTN1(ACTN_MOV)
+				OPND_I_FTOP
+				OPND3(OPC_AUXREG, SIZ(R_U64), RID(R_U64))
+IT_END2(FLD,2)
+
+// F L D 1
+IT_FRM(FLD1)//"Push +1.0 onto the FPU Stack"
+IT_BEG(FLD1)
+//ftop--, [ftop]=1.0
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_SUB)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOP
+			OPND3(OPC_IMM, IMMID(1), OP_1R64)
+IT_END(FLD1)
+
+// F L D L 2 T
+IT_FRM(FLDL2T)//"Push log2(10) onto the FPU Stack"
+IT_BEG(FLDL2T)
+//ftop--, [ftop]=l2t
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_SUB)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOP
+			OPND3(OPC_IMM, IMMID(1), OP_L2T)
+IT_END(FLDL2T)
+
+// F L D L 2 E
+IT_FRM(FLDL2E)//"Push log2(e) onto the FPU Stack"
+IT_BEG(FLDL2E)
+//ftop--, [ftop]=l2e
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_SUB)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOP
+			OPND3(OPC_IMM, IMMID(1), OP_L2E)
+IT_END(FLDL2E)
+
+// F L D P I
+IT_FRM(FLDPI)//"Push pi onto the FPU Stack"
+IT_BEG(FLDPI)
+//ftop--, [ftop]=pi 
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_SUB)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOP
+			OPND3(OPC_IMM, IMMID(1), OP_PI)
+IT_END(FLDPI)
+
+// F L D L G 2
+IT_FRM(FLDLG2)//"Push log10(2) onto the FPU Stack"
+IT_BEG(FLDLG2)
+//ftop--, [ftop]=lg2
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_SUB)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOP
+			OPND3(OPC_IMM, IMMID(1), OP_LG2)
+IT_END(FLDLG2)
+
+// F L D L N 2
+IT_FRM(FLDLN2)//"Push loge(2) onto the FPU Stack"
+IT_BEG(FLDLN2)
+//ftop--, [ftop]=ln2
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_SUB)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOP
+			OPND3(OPC_IMM, IMMID(1), OP_LN2)
+IT_END(FLDLN2)
+
+// F L D Z
+IT_FRM(FLDZ)//"Push +0.0 onto the FPU Stack"
+IT_BEG(FLDZ)
+//ftop--, [ftop]=0.0
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_SUB)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOP
+			OPND3(OPC_IMM, IMMID(1), OP_0R64)
+IT_END(FLDZ)
+
+// F L D C W
+IT_FRM(FLDCW)//"Load Control Word"
+	{OP_M2BYTE},
+IT_BEG(FLDCW)
+//fcw = op1
+	ACTN1(ACTN_MOV)
+		OPND3(OPC_FPUCW, OPSZ_WORD, 0)
+		OPND1(OPND_1)
+IT_END(FLDCW)
+
+// F M U L (1)
+IT_FRM(FMUL)//"Multiply"
+	{OP_M32REAL},	
+	{OP_M64REAL},
+IT_BEG(FMUL)
+//[ftop]=[ftop]*op1
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_MUL)
+			OPND_I_FTOP
+			OPND1(OPND_1)
+IT_END(FMUL)
+
+// F M U L (2)
+IT_FRM2(FMUL,2)//"Multiply"
+	{OP_ST,		OP_STi},
+	{OP_STi,	OP_ST},
+IT_BEG2(FMUL,2)
+//[ftop+offs(op1)]=[ftop+offs(op1)]*[ftop+offs(op2)]
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOPr(OPND_1)
+		ACTN1(ACTN_MUL)
+			OPND_I_FTOPr(OPND_1)
+			OPND_I_FTOPr(OPND_2)
+IT_END2(FMUL,2)
+
+// F M U L P (1)
+IT_FRM(FMULP)//"Multiply & Pop"
+IT_BEG(FMULP)
+//[ftop+1]=[ftop+1]*[ftop], ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOPi(OPND_1)
+			ACTN1(ACTN_MUL)
+				OPND_I_FTOPi(OPND_1)
+				OPND_I_FTOP
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END(FMULP)
+
+// F M U L P (2)
+IT_FRM2(FMULP,2)//"Multiply & Pop"
+	{OP_STi,	OP_ST},
+IT_BEG2(FMULP,2)
+//[ftop+offs(op1)]=[ftop+offs(op1)]*[ftop], ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOPr(OPND_1)
+			ACTN1(ACTN_MUL)
+				OPND_I_FTOPr(OPND_1)
+				OPND_I_FTOP
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END2(FMULP,2)
+
+// F N S T C W
+IT_FRM(FNSTCW)//"Store Control Word (without checking for unmasked floating-point error condition)"
+	{OP_M2BYTE},
+	{R16_AX},
+IT_BEG(FNSTCW)
+//op1 = fcw
+	ACTN1(ACTN_MOV)
+		OPND1(OPND_1)
+		OPND3(OPC_FPUCW, OPSZ_WORD, 0)
+IT_END(FNSTCW)
+
+// F N S T S W
+IT_FRM(FNSTSW)//"Store Status Word (without checking for unmasked floating-point error condition)"
+	{OP_M2BYTE},
+	{R16_AX},
+IT_BEG(FNSTSW)
+//op1 = fsw
+	ACTN1(ACTN_MOV)
+		OPND1(OPND_1)
+		OPND3(OPC_FPUSW, OPSZ_WORD, 0)
+IT_END(FNSTSW)
+
+// F P A T A N
+IT_FRM(FPATAN)//"Partial Arctangent"
+IT_BEG(FPATAN)
+//[ftop+1]=arctan([ftop+1]/[ftop]), ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOPi(OPND_1)
+			ACTN1(ACTN_ATAN2)
+				ACTN1(ACTN_COMMA0)
+					OPND_I_FTOPi(OPND_1)
+					OPND_I_FTOP
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END(FPATAN)
+
+// F P R E M
+IT_FRM(FPREM)//"Partial Remainder"
+IT_BEG(FPREM)
+//[ftop]=fprem([ftop],[ftop+1])
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_PREM)
+			ACTN1(ACTN_COMMA0)
+				OPND_I_FTOP
+				OPND_I_FTOPi(OPND_1)
+IT_END(FPREM)
+
+// F P R E M 1
+IT_FRM(FPREM1)//"Partial Remainder"
+IT_BEG(FPREM1)
+//[ftop]=fprem1([ftop],[ftop+1])
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_PREM1)
+			ACTN1(ACTN_COMMA0)
+				OPND_I_FTOP
+				OPND_I_FTOPi(OPND_1)
+IT_END(FPREM1)
+
+// F P T A N
+IT_FRM(FPTAN)//"Partial Tangent"
+IT_BEG(FPTAN)
+//[ftop]=tan([ftop]), ftop--, [ftop]=1.0
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOP
+			ACTN1(ACTN_TAN)
+				OPND_I_FTOP
+		ACTN1(ACTN_COMMA)
+			ACTN1(ACTN_MOV)
+				OPND_FTOP
+				ACTN1(ACTN_SUB)
+					OPND_FTOP
+					OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+			ACTN1(ACTN_MOV)
+				OPND_I_FTOP
+				OPND3(OPC_IMM, IMMID(1), OP_1R64)
+IT_END(FPTAN)
+
+// F R N D I N T
+IT_FRM(FRNDINT)//"Round to Integer"
+IT_BEG(FRNDINT)
+//[ftop]=round([ftop])
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_RNDINT)
+			OPND_I_FTOP
+IT_END(FRNDINT)
+
+// F S C A L E
+IT_FRM(FSCALE)//"Scale"
+IT_BEG(FSCALE)
+//[ftop]=[ftop]*fscale([ftop+1])
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_MUL)
+			OPND_I_FTOP
+			ACTN1(ACTN_SCALE)
+				OPND_I_FTOPi(OPND_1)
+IT_END(FSCALE)
+
+// F S I N
+IT_FRM(FSIN)//"Sine"
+IT_BEG(FSIN)
+//[ftop]=sin([ftop])
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_SIN)
+			OPND_I_FTOP
+IT_END(FSIN)
+
+// F S I N C O S
+IT_FRM(FSINCOS)//"Sine and Cosine"
+IT_BEG(FSINCOS)
+//[ftop]=sin([ftop]), ftop--, [ftop]=cos([ftop])
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOP
+			ACTN1(ACTN_SIN)
+				OPND_I_FTOP
+		ACTN1(ACTN_COMMA)
+			ACTN1(ACTN_MOV)
+				OPND_FTOP
+				ACTN1(ACTN_SUB)
+					OPND_FTOP
+					OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+			ACTN1(ACTN_MOV)
+				OPND_I_FTOP
+				ACTN1(ACTN_COS)
+					OPND_I_FTOP
+IT_END(FSINCOS)
+
+// F S Q R T
+IT_FRM(FSQRT)//"Square Root"
+IT_BEG(FSQRT)
+//[ftop]=sqrt([ftop])
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_SQRT)
+			OPND_I_FTOP
+IT_END(FSQRT)
+
+// F S T (1)
+IT_FRM(FST)//"Store Real"
+	{OP_M32REAL},
+	{OP_M64REAL},
+IT_BEG(FST)
+//op1=[ftop]
+	ACTN1(ACTN_MOV)
+		OPND1(OPND_1)
+		OPND_I_FTOP
+IT_END(FST)
+
+// F S T (2)
+IT_FRM2(FST,2)//"Store Real"
+	{OP_STi},
+IT_BEG2(FST,2)
+//[ftop+offs(op1)]=[ftop]
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOPr(OPND_1)
+		OPND_I_FTOP
+IT_END2(FST,2)
+
+// F S T P
+IT_FRM(FSTP)//"Store Real & Pop"
+	{OP_M32REAL},
+	{OP_M64REAL},
+	{OP_M80REAL},
+IT_BEG(FSTP)
+//op1=[ftop],ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND1(OPND_1)
+			OPND_I_FTOP
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END(FSTP)
+
+// F S T P (2)
+IT_FRM2(FSTP,2)//"Store Real & Pop"
+	{OP_STi},
+IT_BEG2(FSTP,2)
+//[ftop+offs(op1)]=[ftop],ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOPr(OPND_1)
+			OPND_I_FTOP
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END2(FSTP,2)
+
+// F S T S W
+IT_FRM(FSTSW)//"Store Status Word (after checking for unmasked floating-point error condition)"
+	{OP_M2BYTE},
+	{R16_AX},
+IT_BEG(FSTSW)
+//op1 = fsw
+	ACTN1(ACTN_MOV)
+		OPND1(OPND_1)
+		OPND3(OPC_FPUSW, OPSZ_WORD, 0)
+IT_END(FSTSW)
+
+// F S U B (1)
+IT_FRM(FSUB)//"Subtract Real"
+	{OP_M32REAL},
+	{OP_M64REAL},
+IT_BEG(FSUB)
+//[ftop]=[ftop]-op1
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_SUB)
+			OPND_I_FTOP
+			OPND1(OPND_1)
+IT_END(FSUB)
+
+// F S U B (2)
+IT_FRM2(FSUB,2)//"Subtract Real"
+	{OP_ST,		OP_STi},
+	{OP_STi,	OP_ST},
+IT_BEG2(FSUB,2)
+//[ftop+offs(op1)]=[ftop+offs(op1)]-[ftop+offs(op2)]
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOPr(OPND_1)
+		ACTN1(ACTN_SUB)
+			OPND_I_FTOPr(OPND_1)
+			OPND_I_FTOPr(OPND_2)
+IT_END2(FSUB,2)
+
+// F S U B P (1)
+IT_FRM(FSUBP)//"Subtract Real & Pop"
+IT_BEG(FSUBP)
+//[ftop+1]=[ftop+1]-[ftop], ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOPi(OPND_1)
+			ACTN1(ACTN_SUB)
+				OPND_I_FTOPi(OPND_1)
+				OPND_I_FTOP
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END(FSUBP)
+
+// F S U B P (2)
+IT_FRM2(FSUBP,2)//"Subtract Real & Pop"
+	{OP_STi,	OP_ST},
+IT_BEG2(FSUBP,2)
+//[ftop+offs(op1)]=[ftop+offs(op1)]-[ftop], ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOPr(OPND_1)
+			ACTN1(ACTN_SUB)
+				OPND_I_FTOPr(OPND_1)
+				OPND_I_FTOP
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END2(FSUBP,2)
+
+// F S U B R (1)
+IT_FRM(FSUBR)//"Reverse Subtract Real"
+	{OP_M32REAL},
+	{OP_M64REAL},
+IT_BEG(FSUBR)
+//[ftop]=op1-[ftop]
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOP
+		ACTN1(ACTN_SUB)
+			OPND1(OPND_1)
+			OPND_I_FTOP
+IT_END(FSUBR)
+
+// F S U B R (2)
+IT_FRM2(FSUBR,2)//"Reverse Subtract Real"
+	{OP_ST,		OP_STi},
+	{OP_STi,	OP_ST},
+IT_BEG2(FSUBR,2)
+//[ftop+offs(op1)]=[ftop+offs(op2)]-[ftop+offs(op1)]
+	ACTN1(ACTN_MOV)
+		OPND_I_FTOPr(OPND_1)
+		ACTN1(ACTN_SUB)
+			OPND_I_FTOPr(OPND_2)
+			OPND_I_FTOPr(OPND_1)
+IT_END2(FSUBR,2)
+
+// F S U B R P (1)
+IT_FRM(FSUBRP)//"Reverse Subtract Real & Pop"
+IT_BEG(FSUBRP)
+//[ftop+1]=[ftop]-[ftop+1], ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOPi(OPND_1)
+			ACTN1(ACTN_SUB)
+				OPND_I_FTOP
+				OPND_I_FTOPi(OPND_1)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END(FSUBRP)
+
+// F S U B R P (2)
+IT_FRM2(FSUBRP,2)//"Reverse Subtract Real & Pop"
+	{OP_ST,		OP_STi},
+	{OP_STi,	OP_ST},
+IT_BEG2(FSUBRP,2)
+//[ftop+offs(op1)]=[ftop+offs(op2)]-[ftop+offs(op1)], ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOPr(OPND_1)
+			ACTN1(ACTN_SUB)
+				OPND_I_FTOPr(OPND_2)
+				OPND_I_FTOPr(OPND_1)
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END2(FSUBRP,2)
+
+// F T S T
+IT_FRM(FTST)//"Test Real"
+IT_BEG(FTST)
+//fsw~~[ftop]/-0/
+	ACTN1(ACTN_CHECK)
+		OPND3(OPC_FPUSW, OPSZ_WORD, 0)
+		OPND_I_FTOP
+IT_END(FTST)
+
+// F X C H
+IT_FRM(FXCH)//"Exchange Register Contents"
+	{OP_STi},
+	{OP_ST1},
+IT_BEG(FXCH)
+#if(1)
+//u80=[ftop], [ftop]=[ftop+offs(op1)], [ftop+offs(op1)]=u80
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_AUXREG, OPTYP_REAL80, RID(R_U64))
+			OPND_I_FTOP
+		ACTN1(ACTN_COMMA)
+			ACTN1(ACTN_MOV)
+				OPND_I_FTOP
+				OPND_I_FTOPr(OPND_1)
+			ACTN1(ACTN_MOV)
+				OPND_I_FTOPr(OPND_1)
+				OPND3(OPC_AUXREG, OPTYP_REAL80, RID(R_U64))
+#else
+//u80=[ftop+offs(op1)], [ftop+offs(op1)]=[ftop], [ftop]=u80
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_AUXREG, OPTYP_REAL80, RID(R_U64))
+			OPND_I_FTOPr(OPND_1)
+		ACTN1(ACTN_COMMA)
+			ACTN1(ACTN_MOV)
+				OPND_I_FTOPr(OPND_1)
+				OPND_I_FTOP
+			ACTN1(ACTN_MOV)
+				OPND_I_FTOP
+				OPND3(OPC_AUXREG, OPTYP_REAL80, RID(R_U64))
+#endif
+IT_END(FXCH)
+
+// F X C H (2) //@SA
+IT_FRM2(FXCH,2)//"Exchange Register Contents"
+	{OP_ST,		OP_STi},
+	{OP_STi,	OP_ST},
+IT_BEG2(FXCH,2)
+//u80=[ftop+offs(op1)], [ftop+offs(op1)]=[ftop+offs(op2)], [ftop+offs(op2)]=u80
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND3(OPC_AUXREG, OPTYP_REAL80, RID(R_U64))
+			OPND_I_FTOPr(OPND_1)
+		ACTN1(ACTN_COMMA)
+			ACTN1(ACTN_MOV)
+				OPND_I_FTOPr(OPND_1)
+				OPND_I_FTOPr(OPND_2)
+			ACTN1(ACTN_MOV)
+				OPND_I_FTOPr(OPND_2)
+				OPND3(OPC_AUXREG, OPTYP_REAL80, RID(R_U64))
+IT_END2(FXCH,2)
+
+// F Y L 2 X
+IT_FRM(FYL2X)//"Compute y*log2(x)",
+IT_BEG(FYL2X)
+//[ftop+1]=[ftop+1]*fyl2x([ftop]), ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOPi(OPND_1)
+			ACTN1(ACTN_MUL)
+				OPND_I_FTOPi(OPND_1)
+				ACTN1(ACTN_YL2X)
+					OPND_I_FTOP
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END(FYL2X)
+
+// F Y L 2 X P 1
+IT_FRM(FYL2XP1)//"Compute y*log2(x+1)"
+IT_BEG(FYL2XP1)
+//[ftop+1]=[ftop+1]*fyl2xp1([ftop]), ftop++
+	ACTN1(ACTN_COMMA)
+		ACTN1(ACTN_MOV)
+			OPND_I_FTOPi(OPND_1)
+			ACTN1(ACTN_MUL)
+				OPND_I_FTOPi(OPND_1)
+				ACTN1(ACTN_YL2XP1)
+					OPND_I_FTOP
+		ACTN1(ACTN_MOV)
+			OPND_FTOP
+			ACTN1(ACTN_ADD)
+				OPND_FTOP
+				OPND3(OPC_IMM, OPTYP_LONG, ID2OFFS(1))
+IT_END(FYL2XP1)

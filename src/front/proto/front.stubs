@@ -1,0 +1,201 @@
+; alphabetical order please
+
+
+
+[ADVAPI32.dll]
+IsTextUnicode = 12 12 0 0 0 fff0f000 0 0 1
+RegCloseKey = 4 4 0 0 0 fff0f000
+RegCreateKeyW = 12 12 0 0 0 fff0f000 0 0 1
+RegOpenKeyExA = 20 20 0 0 0 fff0f000 0 0 1
+RegQueryValueExA = 24 24 0 0 0 fff0f000 0 0 1
+RegQueryValueExW = 24 24 0 0 0 fff0f000 0 0 1
+RegSetValueExW = 24 24 0 0 0 fff0f000 0 0 1
+
+
+[GDI32.dll]
+CreateDCW = 16 16 0 0 0 fff0f000 0 0 1
+CreateFontIndirectW = 4 4 0 0 0 fff0f000 0 0 1
+DeleteDC = 4 4 0 0 0 fff0f000 0 0 1
+DeleteObject = 4 4 0 0 0 fff0f000
+EndDoc = 4 4 0 0 0 fff0f000 0 0 1
+EndPage = 4 4 0 0 0 fff0f000 0 0 1
+EnumFontsW = 16 16 0 0 0 fff0f000
+GetDeviceCaps = 8 8 0 0 0 fff0f000 0 0 1
+GetObjectW = 12 12 0 0 0 fff0f000 0 0 1
+GetStockObject = 4 4 0 0 0 fff0f000 0 0 1
+GetTextExtentPoint32W = 16 16 0 0 0 fff0f000 0 0 1
+GetTextFaceW = 12 12 0 0 0 fff0f000
+LPtoDP = 12 12 0 0 0 fff0f000 0 0 1
+SelectObject = 8 8 0 0 0 fff0f000 0 0 1
+SetAbortProc = 8 8 0 0 0 fff0f000 0 0 1
+SetBkMode = 8 8 0 0 0 fff0f000 0 0 1
+SetMapMode = 8 8 0 0 0 fff0f000 0 0 1
+GetTextMetricsW = 8 8 0 0 0 fff0f000 0 0 1
+SetViewportExtEx = 16 16 0 0 0 fff0f000 0 0 1
+SetWindowExtEx = 16 16 0 0 0 fff0f000 0 0 1
+StartDocW = 8 8 0 0 0 fff0f000 0 0 1
+StartPage = 4 4 0 0 0 fff0f000 0 0 1
+TextOutW = 20 20 0 0 0 fff0f000 0 0 1
+
+
+
+
+[KERNEL32.dll]
+CloseHandle = 4 4 0 0 0 fff0f000 0 0
+CompareStringW = 24 24 0 0 0 fff0f000 0 0 1
+CreateFileMappingW = 24 24 0 0 0 fff0f000 0 0 1
+CreateFileW = 28 28 0 0 0 fff0f000 0 0 1
+DeleteFileW = 4 4 0 0 0 fff0f000 0 0 1
+FindClose = 4 4 0 0 0 fff0f000
+FindFirstFileW = 8 8 0 0 0 fff0f000 0 0 1
+FoldStringW = 20 20 0 0 0 fff0f000 0 0 1
+FormatMessageW = 28 28 0 0 0 fff0f000 0 0 1
+GetACP = 0 0 0 0 0 fff0f000 0 0 1
+GetCommandLineW = 0 0 0 0 0 fff0f000 0 0 1
+GetCPInfo = 8 8 0 0 0 fff0f0f0 0 0 1
+GetDateFormatW = 24 24 0 0 0 fff0f000 0 0 1
+GetFileInformationByHandle = 8 8 0 0 0 fff0f000 0 0 1
+GetLastError = 0 0 0 0 0 fff0f000 0 0 1
+GetLocaleInfoW = 16 16 0 0 0 fff0f000 0 0 1
+GetLocalTime = 4 4 0 0 0 fff0f000
+GetModuleHandleA = 4 4 0 0 0 fff0f000 0 0 1
+GetProcAddress = 8 8 0 0 0 fff0f000 0 0 1
+GetStartupInfoA = 4 4 0 0 0 fff0f000
+GetTimeFormatW = 24 24 0 0 0 fff0f000 0 0 1
+GetUserDefaultLangID = 0 0 0 0 0 fff0f000 0 0 A
+GetUserDefaultLCID = 0 0 0 0 0 fff0f000 0 0 1
+GlobalFree = 4 4 0 0 0 fff0f000 0 0 1
+GlobalLock = 4 4 0 0 0 fff0f000 0 0 1
+GlobalUnlock = 4 4 0 0 0 fff0f000 0 0 1
+IsDBCSLeadByte = 4 4 0 0 0 fff0f000 0 0 1
+LoadLibraryA = 4 4 0 0 0 fff0f000 0 0 1
+LocalAlloc = 8 8 0 0 0 fff0f000 0 0 1
+LocalFree = 4 4 0 0 0 fff0f000
+LocalLock = 4 4 0 0 0 fff0f000 0 0 1
+LocalReAlloc = 12 12 0 0 0 fff0f000 0 0 1
+LocalSize = 4 4 0 0 0 fff0f000 0 0 1
+LocalUnlock = 4 4 0 0 0 fff0f000 0 0 1
+lstrcatW = 8 8 0 0 0 fff0f000 0 0 1
+lstrcmpiW = 8 8 0 0 0 fff0f000 0 0 1
+lstrcmpW = 8 8 0 0 0 fff0f000 0 0 1
+lstrcpyW = 8 8 0 0 0 fff0f000 0 0 1
+lstrcpynW = 12 12 0 0 0 fff0f000 0 0 1
+lstrlenW = 4 4 0 0 0 fff0f000 0 0 1
+MapViewOfFile = 20 20 0 0 0 fff0f000 0 0 1
+MulDiv = 12 12 0 0 0 fff0f000 0 0 1
+MultiByteToWideChar = 24 24 0 0 0 fff0f000 0 0 1
+SetEndOfFile = 4 4 0 0 0 fff0f000 0 0 1
+SetLastError = 4 4 0 0 0 fff0f000
+UnmapViewOfFile = 4 4 0 0 0 fff0f000 0 0
+WideCharToMultiByte = 32 32 0 0 0 fff0f000 0 0 1
+WriteFile = 20 20 0 0 0 fff0f000 0 0 1
+
+
+
+
+
+[MSVCRT.dll]
+__getmainargs = 20 0 0 0 0 fff0f000
+__p__commode = 0 0 0 0 0 fff0f000 0 0 1
+__p__fmode = 0 0 0 0 0 fff0f000 0 0 1
+__set_app_type = 4 0 0 0 0 fff0f000
+__setusermatherr = 4 0 0 0 0 fff0f000
+_wtol = 4 0 0 0 0 fff0f000 0 0 1
+exit = 4 4 0 0 0 fff0f000
+iswctype = 8 0 0 0 0 fff0f000 0 0 1
+localtime = 4 0 0 0 0 fff0f000 0 0 1
+time = 4 0 0 0 0 fff0f000 0 0 1
+wcsncmp = 12 0 0 0 0 fff0f000 0 0 1
+wcsncpy = 12 0 0 0 0 fff0f000 0 0 1
+
+
+
+
+[SHELL32.dll]
+DragAcceptFiles = 8 8 0 0 0 fff0f000
+DragFinish = 4 4 0 0 0 fff0f000
+DragQueryFileW = 16 16 0 0 0 fff0f000 0 0 1
+ShellAboutW = 16 16 0 0 0 fff0f000 0 0 1
+
+
+
+
+[USER32.dll]
+CharLowerW = 4 4 0 0 0 fff0f000 0 0 1
+CharNextW = 4 4 0 0 0 fff0f000 0 0 1
+CharUpperW = 4 4 0 0 0 fff0f000 0 0 1
+CheckMenuItem = 12 12 0 0 0 fff0f000 0 0 1
+ChildWindowFromPoint = 12 12 0 0 0 fff0f000
+CloseClipboard = 0 0 0 0 0 fff0f000 0 0 1
+CreateDialogParamW = 20 20 0 0 0 fff0f000 0 0 1
+CreateWindowExW = 48 48 0 0 0 fff0f000 0 0 1
+DefWindowProcW = 16 16 0 0 0 fff0f000 0 0 1
+DestroyWindow = 4 4 0 0 0 fff0f000
+DialogBoxParamW = 20 20 0 0 0 fff0f000 0 0 1
+DispatchMessageW = 4 4 0 0 0 fff0f000 0 0 1
+DrawTextExW = 24 24 0 0 0 fff0f000 0 0 1
+EnableMenuItem = 12 12 0 0 0 fff0f000 0 0 1
+EnableWindow = 8 8 0 0 0 fff0f000 0 0 1
+EndDialog = 8 8 0 0 0 fff0f000
+GetClientRect = 8 8 0 0 0 fff0f000 0 0 1
+GetCursorPos = 4 4 0 0 0 fff0f000
+GetDC = 4 4 0 0 0 fff0f000 0 0 1
+GetDesktopWindow = 12 12 0 0 0 fff0f000 0 0 1
+GetDlgCtrlID = 4 4 0 0 0 fff0f000
+GetDlgItemTextW = 16 16 0 0 0 fff0f000 0 0 1
+GetFocus = 0 0 0 0 0 fff0f000 0 0 1
+GetForegroundWindow = 0 0 0 0 0 fff0f000 0 0 1
+GetKeyboardLayout = 4 4 0 0 0 fff0f000 0 0 1
+GetMenu = 4 4 0 0 0 fff0f000 0 0 1
+GetMenuState = 12 12 0 0 0 fff0f000 0 0 1
+GetMessageW = 16 16 0 0 0 fff0f000 0 0 1
+GetSubMenu = 8 8 0 0 0 fff0f000 0 0 1
+GetSystemMenu = 8 8 0 0 0 fff0f000 0 0 1
+GetSystemMetrics = 4 4 0 0 0 fff0f000 0 0 1
+GetWindowLongW = 8 8 0 0 0 fff0f000 0 0 1
+GetWindowPlacement = 8 8 0 0 0 fff0f000 0 0 1
+GetWindowTextW = 12 12 0 0 0 fff0f000 0 0 1
+InvalidateRect = 12 12 0 0 0 fff0f000
+IsDialogMessageW = 8 8 0 0 0 fff0f000 0 0 1
+IsClipboardFormatAvailable = 4 4 0 0 0 fff0f000 0 0 1
+IsIconic = 4 4 0 0 0 fff0f000 0 0 1
+LoadAcceleratorsW = 8 8 0 0 0 fff0f000 0 0 1
+LoadCursorW = 8 8 0 0 0 fff0f000 0 0 1
+LoadIconW = 8 8 0 0 0 fff0f000 0 0 1
+LoadImageW = 24 24 0 0 0 fff0f000 0 0 1
+LoadStringW = 16 16 0 0 0 fff0f000 0 0 1
+MessageBeep = 4 4 0 0 0 fff0f000 0 0 1
+MessageBoxW = 16 16 0 0 0 fff0f000 0 0 1
+MoveWindow = 24 24 0 0 0 fff0f000 0 0 1
+OpenClipboard = 4 4 0 0 0 fff0f000 0 0 1
+PeekMessageW = 20 20 0 0 0 fff0f000 0 0 1
+PostMessageW = 16 16 0 0 0 fff0f000 0 0 1
+PostQuitMessage = 4 4 0 0 0 fff0f000 0 0 1
+RegisterClassExW = 4 4 0 0 0 fff0f000 0 0 1
+RegisterWindowMessageW = 4 4 0 0 0 fff0f000 0 0 1
+ReleaseDC = 8 8 0 0 0 fff0f000
+ScreenToClient = 8 8 0 0 0 fff0f000
+SendDlgItemMessageW = 20 20 0 0 0 fff0f000
+SendMessageW = 16 16 0 0 0 fff0f000
+SetActiveWindow = 4 4 0 0 0 fff0f000 0 0 1
+SetCursor = 4 4 0 0 0 fff0f000 0 0
+SetDlgItemTextW = 12 12 0 0 0 fff0f000 0 0 1
+SetFocus = 4 4 0 0 0 fff0f000
+SetScrollPos = 16 16 0 0 0 fff0f000 0 0 1
+SetWindowLongW = 12 12 0 0 0 fff0f000 0 0 1
+SetWindowPlacement = 8 8 0 0 0 fff0f000
+SetWindowTextW = 8 8 0 0 0 fff0f000 0 0 1
+ShowWindow = 8 8 0 0 0 fff0f000
+TranslateAcceleratorW = 12 12 0 0 0 fff0f000 0 0 1
+TranslateMessage = 4 4 0 0 0 fff0f000 0 0 1
+UpdateWindow = 4 4 0 0 0 fff0f000 0 0 1
+WinHelpW = 16 16 0 0 0 fff0f000
+wsprintfW = 12 0 0 0 0 fff0f000 0 0 1
+
+
+
+
+
+
+
+

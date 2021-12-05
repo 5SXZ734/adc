@@ -1,0 +1,110 @@
+(source view, D:data context, C:code context)
+=============================================
+A: makearr			- Make Array (D)
+  +SHIFT:			- Toggle Arguments (C)
+B: toggle_if		- Toggle If Block (C)
+C: mkconst			- Make Const (D)
+  -acqcnt			- Acquire Constant (C)
+D: makeint			- Make Integer (D)
+  -bind				- Bind (D) 
+E: toggle_else		- Toggle Else Block (C)
+F: toggle_for		- Toggle For Loop (C)
+  +SHIFT:			- Flat View 
+  +CTRL				- Find
+G: makereal			- Make Real? (D)
+   acquire			- Acquire Object (C)
+  +CTRL				- Go To Line
+H: 
+I: flip				- Flip Condition (C)
+  +SHIFT:			- Show Data Inflow
+  +CTRL+SHIFT:		- Instantiate Type (D)
+J: togthisptr		- Toggle This Pointer
+  +SHIFT:			- Show Data References
+K: undo_logic		- Uncouple Logics (C)
+L: do_ligic			- Couple Logics (C)
+  +SHIFT:			- Show Dead Code
+M: mkgap			- Make Gap (D)
+N:					- Edit Name
+O: 
+  +SHIFT:			- Show Data Outflow
+P: mkptr			- Make Pointer (D)
+Q: --				- Invoke Quick Prototype Dialog
+R: toggle_root		- Propagate/Reduce (C)
+S: toggle_switch	- Toggle Switch (C)
+   tgsgn			- Toggle Sign (D)		| toggle_sign
+  +SHIFT:			- Toggle Profile
+T: applytype		- Apply Type (D)
+U: rmheir			- Remove Inheritance (D)
+  -unbind			- Unbind (D)
+V: togvptr			- Toggle V-Table Pointer (D)
+W: toggle_while		- Toggle While Loop (C)
+X: addheir			- Add Inheritance (D)
+  -xpnd				- Expand (D/C)
+Y: clps				- Collapse (D/C)
+Z: togv				- Toggle Method Virtual (C)
+Del: del			- Delete (D)
+Escape:				- Cancel
+Space:				- Synchronize
+
+
+(binary view)
+=============
+A: makeint -a			- Make ASCII
+B: makebit				- Make Bit
+C: makecode				- Make Code
+D: makeint				- Make Integer
+E: funcend				- Set Function End
+F: makefunc				- Make Function
+G: makereal				- Make Real
+H: makethunk			- Make Thunk
+I:
+J:
+K: 
+L:
+M: makegap				- Make Gap
+N:						- Name/Rename
+O: makeoff				- Make Offset
+P:
+Q:
+R: makearr				- Make Array
+S: tgsgn				- Toggle Sign (integers)	| toggle_sign
+T:						- Set Type
+ +CTRL:					- Build Type
+U: makeint -u			- MAke UNICODE
+V:
+W:
+X: makeunk				- Make Untyped
+Y: makeint -a -t		- Make Text
+Z: mkcln				- Make Clone (union)		| make_clone
+`: togl					- Collapse/Expand
+Del: del				- Delete
+Return:					- Go to Selected
+Escape:					- Go Back
+Space:					- Synchronize
+
+
+(split win)
+TAB:					- Switch between 2 panes
+
+
+(program-wide)
+=============Only in src: main0.cpp
+-:
+ +CTRL					- Navigate Backwards
++:
+ +CTRL					- Navigate Forward
+I:
+ +CTRL					- Show Input Line
+N:
+ +CTRL					- New Document
+O:
+ +CTRL					- Show Output
+P:
+ +CTRL					- Show Preferences
+Q:
+ +CTRL					- Quit
+S:
+ +CTRL					- Save Project
+
+ F1:					- Help
+

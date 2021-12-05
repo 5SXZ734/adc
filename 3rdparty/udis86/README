@@ -1,0 +1,4 @@
+1) Download master copy from https://github.com/vmt/udis86.git; 
+      RELEASE 1.7.2 IS BUGGY!
+2) Load solution capstone.sln, convert projects;
+3) Run buildVS2010.bat (Python27 must be installed)

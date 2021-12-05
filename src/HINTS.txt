@@ -1,0 +1,11 @@
+1) Iterate/access prime Op's args (RHS):
+	
+	for (OpList_t::Iterator i(hPrimeOp->argsIt()); i; ++i){	i.data(); }
+
+2) Iterate/access Op's definition links:
+
+	for (XOpList_t::Iterator i(op->m_xin); i; ++i){	i.data(); }
+
+3) Iterate/access Op's usage links:
+
+	for (XOpList_t::Iterator i(op->m_xout); i; ++i){ i.data(); }

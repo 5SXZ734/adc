@@ -1,0 +1,2 @@
+cd c:\Qt\4.8.7\
+configure -prefix C:\Qt\Qt-4.8.7\Win32 -debug-and-release -shared -fast -no-accessibility -no-qt3support -no-opengl -no-dsp -no-vcproj -no-script -no-scripttools -no-phonon -no-phonon-backend -no-webkit -no-multimedia -nomake demos -nomake tools -nomake examples

@@ -1,0 +1,6 @@
+//#define NEW_OP_PTR	@NEW_OP_PTR@
+//#define NEW_PATH_PTR	@NEW_PATH_PTR@
+
+#define VERSION_MAJOR @adc_VERSION_MAJOR@
+#define VERSION_MINOR @adc_VERSION_MINOR@
+
