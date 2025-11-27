@@ -13,6 +13,9 @@
 //#include "interface/IADCGui.h"
 #include "qx/MyString.h"
 #include "defs.h"
+#if defined(_WIN32)
+#   define strcasecmp _stricmp
+#endif
 
 
 struct value_t

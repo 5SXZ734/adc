@@ -117,7 +117,7 @@ set(SRC_FILES_QRC
 
 #message("test:" ${CMAKE_PREFIX_PATH})
 
-set(Qt5_DIR "$ENV{QT5DIR}/v142/win32/lib/cmake/Qt5")
+set(Qt5_DIR "$ENV{QT5DIR}/v142/x64/lib/cmake/Qt5")
 #C:/Qt/5.14.2
 
 #find_package(Qt5Widgets REQUIRED)
