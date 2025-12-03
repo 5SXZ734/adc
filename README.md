@@ -140,4 +140,23 @@ cmake --build .
 
 ---
 
+## Documentation
+
+### Format Loaders
+- [PE Loader / Decoder Guide](doc/extended_pe_loader_guide.md)
+
+### Debug / Symbol Formats
+- (coming soon) PDB Guide
+- (coming soon) DWARF Guide
+
+### Decompiler Internals
+- (coming soon) IR Model
+- (coming soon) CFG Structuring
+- (coming soon) Type Propagation
+
+### Frontend Interfaces
+- (coming soon) Frontend API
+- (coming soon) DB / Type System API
+
+
 _End of Architecture Overview_
