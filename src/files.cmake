@@ -39,13 +39,13 @@ function(add_uiq5_block OUT_VAR GROUP BASEDIR)
     set(${OUT_VAR} "${tmp}" PARENT_SCOPE)
 
     # Maintain UIQ5_MOC
-    set(_moc "${UIQ5_MOC}")
+    set(_moc "${${OUT_VAR}_MOC}")
     foreach(f IN LISTS _files)
         if("${f}" MATCHES "\\.h$")
             list(APPEND _moc "${f}")
         endif()
     endforeach()
-    set(UIQ5_MOC "${_moc}" PARENT_SCOPE)
+    set(${OUT_VAR}_MOC "${_moc}" PARENT_SCOPE)
 
     # Do source_group exactly like add_src_block (including GROUP = "")
     source_group("${GROUP}" FILES ${_files})
@@ -340,7 +340,7 @@ set(UIQ5_UIC
 
 # aggregate lists
 set(UIQ5_SRC)
-set(UIQ5_MOC)
+set(UIQ5_SRC_MOC)
 
 # main uiqt5 (src/uiqt5)
 add_uiq5_block(UIQ5_SRC "" "src/uiqt5"
