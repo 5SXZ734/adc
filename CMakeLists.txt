@@ -75,15 +75,79 @@ set(LIB3_SRC ${DC_SRC})
 
 DeclareLibrary(LIB3 dc)
 
+
+############################################## adcui5
+
+set(QT_DIR $ENV{QT_DIR})
+set(QT_VERSION "5.15.1")
+set(QT_SHARED 1)
+
+FindQT5()
+
+set(LIB4_SRC ${UIQ5_SRC})
+set(LIB4_H ${UIQ5_H})
+set(LIB4_UIC ${UIQ5_UIC})
+set(LIB4_MOC ${UIQ5_MOC})
+set(LIB4_RCC ${UIQ5_RCC})
+
+set(LIB4_DEFINE "EXPORT_IMPORT_API=")
+
+set(LIB4_INCLUDE
+	src
+	src/shared
+	${SSMAKE_GEN_DIR}/src/uiqt5
+	)
+
+set(LIB4_LIB
+	-Iqx_1_0_0_R
+	-IVersion_1_0_0_R
+	-Pqt:${QT_VERSION}
+)
+
+set(LIB4_SHARED_MODULE 1)
+
+DeclareLibrary(LIB4 uiqt5)
+
+
+############################################## dc
+
+set(LIB5_DEFINE _CRT_SECURE_NO_WARNINGS)
+set(LIB5_INCLUDE src src/shared)
+set(LIB5_LIB 
+	shared
+	-Iqx_1_0_0_R 
+	-Ddemanglers_4_0_2_R:demanglers
+	-Dcapstone_4_0_2_R:capstone
+	-Dudis86_7_0_2_R:udis86
+	)
+set(LIB5_LOCAL 1)
+set(LIB5_SHARED 1)
+
+set(LIB5_SRC ${FRONT_SRC})
+
+
+DeclareLibrary(LIB5 front)
+
 ############################################## adc
 
 
 set(PROG_INCLUDE src)
 
 set(PROG_SRC ${ADC_SRC} ${ADC_H})
+set(PROG_EXTRA src/files.cmake)
 
 
-set(PROG_LIB db dc shared -Iqx_1_0_0_R -Itiny_process_1_0_0_R -IVersion_1_0_0_R)
+set(PROG_LIB 
+	db 
+	dc 
+	shared
+	-Iqx_1_0_0_R 
+	-Itiny_process_1_0_0_R
+	-IVersion_1_0_0_R
+#	-Dcapstone_4_0_2_R:capstone
+#	-Ddemanglers_4_0_2_R:demanglers
+#	-Dudis86_7_0_2_R:udis86
+	)
 
 #add_dependencies(adc front uiqt5)
 

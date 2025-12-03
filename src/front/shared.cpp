@@ -1,6 +1,6 @@
 #include "shared.h"
 #include "qx/MyStream.h"
-#include "demanglers.h"
+#include "demanglers/demanglers.h"
 #include "wintypes.h"
 
 HTYPE toAscii(I_Module &mr, bool bSkipEmpty)//zero terminated
