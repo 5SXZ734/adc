@@ -431,7 +431,7 @@ void ADCTextView::resizeEvent(QResizeEvent * e)
 
 void ADCTextView::restartCaretTimer()
 {
-#if(NO_CARET_BLINK)
+#if(!NO_CARET_BLINK)
 	if (mTimerId != 0)
 		killTimer(mTimerId);
 	if (mpViewport)
