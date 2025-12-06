@@ -13,8 +13,17 @@
 #include <QItemDelegate>
 #include <QTreeView>
 #include <QStyleFactory>
+#include <QtPlugin>
 
 using namespace adcui;
+
+
+#ifdef WIN32
+Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin);
+Q_IMPORT_PLUGIN(QWindowsPrinterSupportPlugin);
+#else
+Q_IMPORT_PLUGIN(QXcbIntegrationPlugin);
+#endif
 
 //extern void qInitImages_adc();
 

@@ -80,7 +80,7 @@ DeclareLibrary(LIB3 dc)
 
 set(QT_DIR $ENV{QT_DIR})
 set(QT_VERSION "5.15.1")
-set(QT_SHARED 1)
+#set(QT_SHARED 1)
 
 FindQT5()
 
@@ -103,6 +103,10 @@ set(LIB4_LIB
 	-IVersion_1_0_0_R
 	-Pqt:${QT_VERSION}
 )
+
+if(QT_STATIC)
+	list(APPEND LIB4_LIB dwmapi wtsapi32 imm32 ws2_32 winmm netapi32 userenv version)
+endif()
 
 set(LIB4_SHARED_MODULE 1)
 
