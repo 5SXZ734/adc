@@ -199,8 +199,8 @@ protected:
 	{
 		CHUNKINDEXTYPE n(CHUNKINDEXTYPE(this->mrF.count()));//how many bytes to skip (a provision for the overriders)
 		uint32_t len(sizeof(n));
-		write(os, len);
-		writeIdx(os, n);
+		this->write(os, len);
+		this->writeIdx(os, n);
 		mGBias = n;
 	}
 

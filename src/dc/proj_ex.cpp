@@ -939,11 +939,11 @@ MyString ProjectEx_t::typeDisplayName(CTypePtr pType) const
 bool ProjectEx_t::getCellStr(int col, CTypePtr pScope, ADDR _key, unsigned sz, MyString& s) const
 {
 	if (!pScope->typeFuncDef())
-		return nullptr;
+		return false;
 
 	TypePtr iModule(DcInfo_t::ModuleOfEx(pScope));
 	if (!iModule)
-		return nullptr;
+		return false;
 
 	SSID_t ssid(FuncInfo_s::SSIDx(_key));
 	if (col == adcui::IBinViewModel::CLMN_OFFS)

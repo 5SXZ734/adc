@@ -208,6 +208,7 @@ public:
 				if (sscanf(buf, "%04d%04d%04d%04d%04d%04d", &d[0], &d[1], &d[2], &d[3], &d[4], &_version_num) != 6)
 					return;
 				bVectorsNum10k = bProbesNum10k = true;
+				_header[date] = 24;
 			}
 			else if (_header[magic] == 21)
 			{

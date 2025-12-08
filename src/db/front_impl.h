@@ -431,7 +431,7 @@ protected:
 #define	ORDINAL_NULL	0xFFFF
 #define	NULL_ORDINAL_BIAS	0x10000
 
-#define NO_TRY	1
+#define NO_TRY	0
 #if(!NO_TRY)
 #define TRY try
 #define CATCH(arg)	catch(arg)
