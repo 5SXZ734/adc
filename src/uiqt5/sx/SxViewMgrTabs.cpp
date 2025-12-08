@@ -228,7 +228,7 @@ static QString makeTabTitle( const QString &_path, const QString &_extra )
 	if (!path.isEmpty())
 	{
 		path = QDir::toNativeSeparators(path);
-		QStringList l(path.split(QDir::separator(), QString::SkipEmptyParts));
+		QStringList l(path.split(QDir::separator(), Qt::SkipEmptyParts));
 		title = l.back();
 		if (title.endsWith(":"))
 			title.truncate(title.length() - 1);
@@ -318,7 +318,7 @@ bool SxViewMgrTabs::addDoc( QWidget * pWidget )
 	DocumentObject * pDoc = dynamic_cast<DocumentObject *>( pWidget );
 	if ( pDoc != nullptr )
 	{
-		QStringList lst(pDoc->mstrID.split('\n', QString::KeepEmptyParts));
+		QStringList lst(pDoc->mstrID.split('\n', Qt::KeepEmptyParts));
 		title = makeTabTitle(lst[0], lst[1]);
 	}
 

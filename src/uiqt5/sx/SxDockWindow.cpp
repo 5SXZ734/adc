@@ -16,7 +16,7 @@ void SxDockWindow::init(DocumentObject *pDoc)
 {
 	if (pDoc)
 	{
-		QStringList lst = pDoc->mstrID.split('\n', QString::KeepEmptyParts);
+		QStringList lst = pDoc->mstrID.split('\n', Qt::KeepEmptyParts);
 		QString s = lst[1];
 		setWindowTitle(s);
 		setWindowIcon(QIcon(pDoc->mstrIcon));

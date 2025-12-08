@@ -1,5 +1,9 @@
 #include <QtCore/QTextStream>
+#if QT_VERSION_MAJOR < 6
 #include <QtCore/QRegExp>
+#else
+#include <QRegularExpression>
+#endif
 #include <QtGui/QDragEnterEvent>
 #include <QtGui/QFont>
 #include <QApplication>
@@ -110,7 +114,7 @@ SeditexTextEdit::FindTextObject::FindTextObject(SeditexTextEdit* parent)
 
 bool SeditexTextEdit::FindTextObject::findIt(const QString& text, bool cs, bool wo, bool rev, bool reset) const
 {
-	QTextDocument::FindFlags options = 0;
+	QTextDocument::FindFlags options{};
 	if (cs)
 		options |= QTextDocument::FindCaseSensitively;
 	if (wo)
@@ -297,7 +301,7 @@ void SeditexTextEdit::contextMenuEvent(QContextMenuEvent* event)
 	QMenu* popup = new QMenu(this);//, "seditex_output_popup" );
 
 	QAction* pCopyAction(new QAction(tr("&Copy"), popup));
-	pCopyAction->setShortcut(Qt::CTRL + Qt::Key_C);
+	pCopyAction->setShortcut(Qt::CTRL | Qt::Key_C);
 	pCopyAction->setEnabled(textCursor().hasSelection());
 	connect(pCopyAction, SIGNAL(triggered()), SLOT(slotCopy()));
 
@@ -319,7 +323,7 @@ void SeditexTextEdit::contextMenuEvent(QContextMenuEvent* event)
 	popup->addSeparator();
 
 	QAction* pSelectAllAction(new QAction(tr("Select All"), popup));
-	pSelectAllAction->setShortcut(Qt::CTRL + Qt::Key_A);
+	pSelectAllAction->setShortcut(Qt::CTRL | Qt::Key_A);
 	pSelectAllAction->setEnabled(!isEmptyDocument);
 	connect(pSelectAllAction, SIGNAL(triggered()), SLOT(slotSelectAll()));
 
@@ -478,114 +482,145 @@ void SeditexTextEdit::slotPrint(QSilPageSetup*)
 */
 QString& SeditexTextEdit::checkChevrons(QString& qsSource)
 {
-	QRegExp rxCommonTagExp("</?[^(>|<)]+>", Qt::CaseInsensitive, QRegExp::RegExp);//FALSE, FALSE );
-	QRegExp rxValid("</?(font[^>]*|b|i|u)>", Qt::CaseInsensitive, QRegExp::RegExp);//FALSE, FALSE );
-	int outerPosition = 0;
-	int innerPosition = 0;
-	int outerLength = 0;
-	//int innerLength = 0;
-	int oldPosition = 0;
-	QString leftString, midString, rightString;
-	int leftBorder = 0, rightBorder = 0;
-	int oldLength = 0, newLength = 0;
+#if QT_VERSION_MAJOR >= 6
+    // Qt 6: use QRegularExpression
+    // This is equivalent to "</?[^(>|<)]+>" but written as sane PCRE:
+    //   "<" or "</", then one or more non-<,non-> chars, then ">"
+    QRegularExpression rxCommonTagExp(
+        QStringLiteral("</?[^<>]+>"),
+        QRegularExpression::CaseInsensitiveOption
+    );
 
-	/* Set lazy flavor */
-	rxCommonTagExp.setMinimal(true);
-	/* Look for a tag - either valid or invalid tag */
-	while ((outerPosition = rxCommonTagExp.indexIn(qsSource, outerPosition, QRegExp::CaretWontMatch)) != -1)
-	{
-		/* We have found a structure looks like a tag */
-		/* Checking if the tag is valid (<font..>, </font>, <b>, </b>, <i>, </i>, <u>, </u>) or not */
-		outerLength = rxCommonTagExp.matchedLength();
-		if (-1 != outerLength)
-		{
-			innerPosition = 0;
-			/* Copy the found substring */
-			QString qsInner = qsSource.mid(outerPosition, outerLength);
-			innerPosition = rxValid.indexIn(qsInner, innerPosition, QRegExp::CaretWontMatch);
-			if (innerPosition == -1)
-			{
-				/* The tag is not valid. Replacing chevrons */
-				/* Replacing > chevron */
-				/* qsSource.replace( outerPosition + outerLength - 1, 1, "&gt;" ); */
-				/* Replacing < chevron */
-				/* qsSource.replace( outerPosition, 1, "&lt;" ); */
-				leftBorder = oldPosition;
-				rightBorder = outerPosition + outerLength;
-			}
-			else
-			{
-				/* We have found a valid tag */
-				leftBorder = oldPosition;
-				rightBorder = outerPosition;
-			}
-			if (leftBorder < rightBorder)
-			{
-				/* Split the source string into 3 parts */
-				/* Center part - we need to replace all chevrons here */
-				midString = qsSource.mid(leftBorder, rightBorder - leftBorder);
-				/* Check if the middle part contains any chevron */
-				if (midString.contains('<') || midString.contains('>'))
-				{
-					/* Left part - the constant part */
-					leftString = qsSource.left(leftBorder);
-					/* Right part - the constant part */
-					if ((int)qsSource.length() < rightBorder)
-					{
-						rightString = "";
-					}
-					else
-					{
-						rightString = qsSource.right(qsSource.length() - rightBorder);
-					}
-					/* Save the old length */
-					oldLength = midString.length();
-					/* Replacing > chevron */
-					midString.replace(QChar('>'), "&gt;");
-					/* Replacing < chevron */
-					midString.replace(QChar('<'), "&lt;");
-					qsSource = leftString + midString + rightString;
-					/* Get the new length */
-					newLength = midString.length();
-					/* Update the old starting point */
-					outerPosition += newLength - oldLength;
-				}
-			}
-		}
-		/* Setting the new starting point */
-		outerPosition += outerLength;
-		oldPosition = outerPosition;
-	}
-	if (0 == oldPosition)
-	{
-		/* We haven't found any structure looks like a tag */
-		/* Replacing > chevron */
-		qsSource.replace(QChar('>'), "&gt;");
-		/* Replacing < chevron */
-		qsSource.replace(QChar('<'), "&lt;");
-	}
-	else
-	{
-		/* Left part - the constant part */
-		leftString = qsSource.left(oldPosition);
-		if ((int)qsSource.length() < oldPosition)
-		{
-			rightString = "";
-		}
-		else
-		{
-			rightString = qsSource.right(qsSource.length() - oldPosition);
-		}
-		/* We try to replace all chevrons in the rest of the string */
-		/* Replacing > chevron */
-		rightString.replace(QChar('>'), "&gt;");
-		/* Replacing < chevron */
-		rightString.replace(QChar('<'), "&lt;");
-		qsSource = leftString + rightString;
-	}
+    QRegularExpression rxValid(
+        QStringLiteral("</?(font[^>]*|b|i|u)>"),
+        QRegularExpression::CaseInsensitiveOption
+    );
+#else
+    // Qt 5: original QRegExp version
+    QRegExp rxCommonTagExp("</?[^(>|<)]+>", Qt::CaseInsensitive, QRegExp::RegExp);
+    QRegExp rxValid("</?(font[^>]*|b|i|u)>", Qt::CaseInsensitive, QRegExp::RegExp);
+    rxCommonTagExp.setMinimal(true);
+#endif
 
-	return qsSource;
+    int outerPosition = 0;
+    int innerPosition = 0;
+    int outerLength = 0;
+    int oldPosition = 0;
+    QString leftString, midString, rightString;
+    int leftBorder = 0, rightBorder = 0;
+    int oldLength = 0, newLength = 0;
+
+    /* Look for a tag - either valid or invalid tag */
+    while (true)
+    {
+#if QT_VERSION_MAJOR >= 6
+        // Qt 6: use match() starting at outerPosition
+        QRegularExpressionMatch outerMatch = rxCommonTagExp.match(qsSource, outerPosition);
+        if (!outerMatch.hasMatch())
+            break;
+
+        outerPosition = outerMatch.capturedStart();
+        outerLength   = outerMatch.capturedLength();
+#else
+        outerPosition = rxCommonTagExp.indexIn(qsSource, outerPosition, QRegExp::CaretWontMatch);
+        if (outerPosition == -1)
+            break;
+
+        outerLength = rxCommonTagExp.matchedLength();
+#endif
+        if (outerLength == -1)
+        {
+            // should not really happen, but keep the old guard
+            outerPosition++;
+            continue;
+        }
+
+        innerPosition = 0;
+        /* Copy the found substring */
+        QString qsInner = qsSource.mid(outerPosition, outerLength);
+
+#if QT_VERSION_MAJOR >= 6
+        QRegularExpressionMatch innerMatch = rxValid.match(qsInner);
+        innerPosition = innerMatch.hasMatch() ? innerMatch.capturedStart() : -1;
+#else
+        innerPosition = rxValid.indexIn(qsInner, innerPosition, QRegExp::CaretWontMatch);
+#endif
+
+        if (innerPosition == -1)
+        {
+            /* The tag is not valid. Replacing chevrons in [oldPosition, outerPosition+outerLength) */
+            leftBorder  = oldPosition;
+            rightBorder = outerPosition + outerLength;
+        }
+        else
+        {
+            /* We have found a valid tag – escape between oldPosition and outerPosition only */
+            leftBorder  = oldPosition;
+            rightBorder = outerPosition;
+        }
+
+        if (leftBorder < rightBorder)
+        {
+            /* Split the source string into 3 parts */
+            midString = qsSource.mid(leftBorder, rightBorder - leftBorder);
+
+            /* Check if the middle part contains any chevron */
+            if (midString.contains('<') || midString.contains('>'))
+            {
+                /* Left part - the constant part */
+                leftString = qsSource.left(leftBorder);
+                /* Right part - the constant part */
+                if (qsSource.length() < rightBorder)
+                    rightString.clear();
+                else
+                    rightString = qsSource.right(qsSource.length() - rightBorder);
+
+                /* Save the old length */
+                oldLength = midString.length();
+
+                /* Replacing > chevron */
+                midString.replace(QChar('>'), "&gt;");
+                /* Replacing < chevron */
+                midString.replace(QChar('<'), "&lt;");
+
+                qsSource = leftString + midString + rightString;
+
+                /* Get the new length */
+                newLength = midString.length();
+                /* Update the old starting point */
+                outerPosition += newLength - oldLength;
+            }
+        }
+
+        /* Setting the new starting point */
+        outerPosition += outerLength;
+        oldPosition = outerPosition;
+    }
+
+    if (oldPosition == 0)
+    {
+        /* We haven't found any structure that looks like a tag – escape all chevrons */
+        qsSource.replace(QChar('>'), "&gt;");
+        qsSource.replace(QChar('<'), "&lt;");
+    }
+    else
+    {
+        /* Left part - the constant part */
+        leftString = qsSource.left(oldPosition);
+        if (qsSource.length() < oldPosition)
+            rightString.clear();
+        else
+            rightString = qsSource.right(qsSource.length() - oldPosition);
+
+        /* Escape all chevrons in the rest of the string */
+        rightString.replace(QChar('>'), "&gt;");
+        rightString.replace(QChar('<'), "&lt;");
+        qsSource = leftString + rightString;
+    }
+
+    return qsSource;
 }
+
 
 void SeditexTextEdit::slotAppendText(const QString& str)
 {

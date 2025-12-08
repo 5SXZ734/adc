@@ -236,7 +236,7 @@ public:
 			if (m > n)
 			{
 				QString s(path.mid(n + 1, m - n - 1));
-				QStringList l(s.split('|', QString::SkipEmptyParts));
+				QStringList l(s.split('|', Qt::SkipEmptyParts));
 				for (int i(0); i < l.size(); i++)
 				{
 					s = path;

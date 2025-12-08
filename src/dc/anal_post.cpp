@@ -379,7 +379,7 @@ void StageImports_t::run0()
 	
 	ProjectInfo_t PI(DI.Project());
 	FileInfo_t impFile(DI, mrFileImported, mr.memMgrGlob());//work in context of this file
-	MyString sm(mpExportingModule ? ProjectInfo_s::ModuleTitle(mpExportingModule) : "");//old
+	MyString sm(mpExportingModule ? ProjectInfo_s::ModuleTitle(mpExportingModule) : MyString());//old
 	
 	MyStringEx aName(symIt.symbol());
 	MyString sMangled(aName[0]);

@@ -77,11 +77,11 @@ ADCMainWin::ADCMainWin(ADBResManager& rm, adcui::IADCCore& rADC)
 	CreateCutListWin();
 
 	mpGoBackAction = new QAction(SxIcon(":go_back_{16|24}.png"), tr("Navigate Backward"), this);
-	mpGoBackAction->setShortcut(Qt::CTRL + Qt::Key_Minus);
+	mpGoBackAction->setShortcut(Qt::CTRL | Qt::Key_Minus);
 	connect(mpGoBackAction, SIGNAL(triggered()), SLOT(slotJumpSourceBack()));
 
 	mpGoForwardAction = new QAction(SxIcon(":go_forward_{16|24}.png"), tr("Navigate Forward"), this);
-	mpGoForwardAction->setShortcut(Qt::CTRL + Qt::Key_Equal);//Qt::KeyPlus duesn't work!
+	mpGoForwardAction->setShortcut(Qt::CTRL | Qt::Key_Equal);//Qt::KeyPlus duesn't work!
 	connect(mpGoForwardAction, SIGNAL(triggered()), SLOT(slotJumpSourceForward()));
 
 	mpSyncModeAction = new QAction(SxIcon(":sync_mode_{16|24}.png"), tr("Synchronize Mode"), this);//sync_mode2//arrow_left_right//sync_mode3
@@ -772,50 +772,82 @@ void ADCMainWin::OnDecompileFunction(QString sFile, QString sFunc)
 			pWin->assureSourcePane(sFunc);
 	}
 }
-
 void ADCMainWin::OnSrcDumpInvalidated(QString fileName)
 {
-	//fileName = QDir::toNativeSeparators(fileName);
-	//CHECK_QSTRING(fileName, z);
+    //fileName = QDir::toNativeSeparators(fileName);
+    //CHECK_QSTRING(fileName, z);
 
-	QString fileName2(fixPath(fileName));
-	QRegExp rx(fileName2);
-	rx.setPatternSyntax(QRegExp::WildcardUnix);
-	for (int i(0); i < getDocsCount(); i++)
-	{
-		DocumentObject* pDoc(getDoc(i));
-		if (pDoc)
-		{
-			ADCSourceWin0* pWin(dynamic_cast<ADCSourceWin0*>(pDoc));
-			if (pWin)
-			{
-				QString s(KEY2PATH(pDoc->mstrID));
-				//CHECK_QSTRING(s, z2);
-				if (rx.exactMatch(s))
-					pWin->redump();
-				else
-					pWin->updateContents();
-				int l = rx.matchedLength();
-				(void)l;
-			}
-		}
-	}
-	//let docked/floating window(s) know about change
-	emit signalSrcDumpInvalidated(fileName);
+    QString fileName2(fixPath(fileName));
+
+#if QT_VERSION_MAJOR >= 6
+    // Qt 6: QRegExp is gone, use QRegularExpression + wildcard conversion
+    QRegularExpression rx(
+        QRegularExpression::wildcardToRegularExpression(fileName2)
+    );
+#else
+    // Qt 5
+    QRegExp rx(fileName2);
+    rx.setPatternSyntax(QRegExp::WildcardUnix);
+#endif
+
+    for (int i(0); i < getDocsCount(); i++)
+    {
+        DocumentObject* pDoc(getDoc(i));
+        if (pDoc)
+        {
+            ADCSourceWin0* pWin(dynamic_cast<ADCSourceWin0*>(pDoc));
+            if (pWin)
+            {
+                QString s(KEY2PATH(pDoc->mstrID));
+                //CHECK_QSTRING(s, z2);
+
+#if QT_VERSION_MAJOR >= 6
+                QRegularExpressionMatch m = rx.match(s);
+                if (m.hasMatch())
+                {
+                    pWin->redump();
+                }
+                else
+                {
+                    pWin->updateContents();
+                }
+                int l = m.capturedLength();
+                (void)l;
+#else
+                if (rx.exactMatch(s))
+                    pWin->redump();
+                else
+                    pWin->updateContents();
+                int l = rx.matchedLength();
+                (void)l;
+#endif
+            }
+        }
+    }
+
+    // let docked/floating window(s) know about change
+    emit signalSrcDumpInvalidated(fileName);
 }
+
 
 void ADCMainWin::slotNoSourceContextRecoil(QString s)
 {
-	ADCSourceWin* pWin(getCurrentSourceWin());
-	if (!pWin)
-	{
-		QMessageBox::critical(this, tr("Error"), tr("The requested operation requires a source file context:\n%1").arg(s),
-			QMessageBox::Ok | QMessageBox::Default, 0, 0);
-		return;
-	}
-	s.append(QString(" -src %1").arg(pWin->fileName()));
-	slotPostCommand(s);//re-post
+    ADCSourceWin* pWin(getCurrentSourceWin());
+    if (!pWin)
+    {
+        QMessageBox::critical(
+            this,
+            tr("Error"),
+            tr("The requested operation requires a source file context:\n%1").arg(s),
+            QMessageBox::Ok
+        );
+        return;
+    }
+
+    s.append(QString(" -src %1").arg(pWin->fileName()));
+    slotPostCommand(s); // re-post
 }
+
 
 void ADCMainWin::slotSyncSourcePanesRequest(int nLine, bool bForce)
 {

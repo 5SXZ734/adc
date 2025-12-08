@@ -133,7 +133,7 @@ void SrcViewModel_t::tipInfoIt(adcui::DUMPOS it, int x, MyStreamBase &ss)
 	FileInfo_t fileInfo(mrDcRef, FileDef());
 
 	//stage 1 - file level
-	FileDumper_t dumper(fileInfo, *pDisp, &aTip, nullptr, nullptr);
+	FileDumper_t dumper(fileInfo, *pDisp, &aTip, nullptr, false);
 
 	dumper.Probe(aTip);
 

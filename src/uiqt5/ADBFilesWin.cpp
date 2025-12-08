@@ -495,7 +495,7 @@ QModelIndex ADCProjectWin::pathToIndex(QString s)
 	if (ADCFilesViewModel *model = static_cast<ADCFilesViewModel *>(model0))
 	{
 		s.replace('\\', '/');
-		QStringList l(s.split('/', QString::SkipEmptyParts));
+		QStringList l(s.split('/', Qt::SkipEmptyParts));
 		if (!l.isEmpty())
 		{
 			QString s(l.front());

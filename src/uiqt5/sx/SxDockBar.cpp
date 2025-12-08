@@ -51,7 +51,7 @@ int SxTabWidgetEx::showTab(QWidget *pTab, int atIndex)
 		if (index < 0)
 		{
 			iRet = 1;
-			QStringList lst = pDoc->mstrID.split('\n', QString::KeepEmptyParts);
+			QStringList lst = pDoc->mstrID.split('\n', Qt::KeepEmptyParts);
 			index = insertTab(atIndex, pTab, QIcon( QPixmap(pDoc->mstrIcon)), lst[1]);
 		}
 

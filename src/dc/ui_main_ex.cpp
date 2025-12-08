@@ -1350,8 +1350,8 @@ void CoreEx_t::DumpCutList(MyStreamBase& ss)
 			{
 			}
 		}
-		ssu.WriteString(s1.isEmpty() ? "?" : s1);
-		ssu.WriteString(s2.isEmpty() ? "?" : s2);
+		ssu.WriteString(s1.isEmpty() ? MyString("?") : s1);
+		ssu.WriteString(s2.isEmpty() ? MyString("?") : s2);
 	}
 }
 

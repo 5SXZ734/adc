@@ -503,7 +503,19 @@ void ADCTextView::mousePressEvent(QMouseEvent *e)
 		qreal w(charWidth());
 		qreal h(lineHeight());
 
-		QPoint p0(e->x() / w - leftMargin(), e->y() / h - topMargin());
+#if QT_VERSION_MAJOR >= 6
+		QPointF pos = e->position();   // floating-point
+		QPoint p0(
+			int(pos.x() / w - leftMargin()),
+			int(pos.y() / h - topMargin())
+		);
+#else
+		QPoint p0(
+			e->x() / w - leftMargin(),
+			e->y() / h - topMargin()
+		);
+#endif
+
 		QPoint p(p0);
 		if (p.x() < 0)//over left margin?
 			p.setX(0);
@@ -552,7 +564,12 @@ void ADCTextView::mouseReleaseEvent(QMouseEvent *)
 
 void ADCTextView::mouseDoubleClickEvent(QMouseEvent *e)
 {
+#if QT_VERSION_MAJOR >= 6
+	QPoint a = e->position().toPoint();
+#else
 	QPoint a(e->x(), e->y());
+#endif
+
 	QPoint b(leftMargin()*charWidth(), topMargin()*lineHeight());
 	QPoint p(a - b);
 
@@ -589,8 +606,19 @@ bool ADCTextView::checkSelectionKey()
 void ADCTextView::mouseMoveEvent(QMouseEvent *e)
 {
 	//fprintf(stdout, "mouseMoveEvent()\n");
-	QPoint p0(e->x() / charWidth() - leftMargin(),//screen coords
-		e->y() / lineHeight() - topMargin());
+#if QT_VERSION_MAJOR >= 6
+	QPointF pos = e->position();  // floating-point, Qt 6+
+	QPoint p0(
+		int(pos.x() / charWidth() - leftMargin()),
+		int(pos.y() / lineHeight() - topMargin())
+	);
+#else
+	QPoint p0(
+		e->x() / charWidth() - leftMargin(),
+		e->y() / lineHeight() - topMargin()
+	);
+#endif
+
 
 	if (mGrabMouse == 2)
 	{
@@ -1234,42 +1262,45 @@ void ADCTextView::slotVSliderValueChanged(int nPos)
 }
 
 #define WHEEL_DELTA 120
-void ADCTextView::wheelEvent(QWheelEvent * e)
+
+void ADCTextView::wheelEvent(QWheelEvent* e)
 {
-	//int val = mpVertScrollBar->value();
+    // For Qt6: use angleDelta().y(), for Qt5: use delta()
+#if QT_VERSION_MAJOR >= 6
+    const int delta = e->angleDelta().y();
+#else
+    const int delta = e->delta();
+#endif
 
-	int delta = e->delta();
-	if (e->modifiers() == Qt::ControlModifier)
-	{
-		if (delta < 0)
-			zoomOut();
-		else if (delta > 0)
-			zoomIn();
-		return;
-	}
+    if (e->modifiers() == Qt::ControlModifier)
+    {
+        if (delta < 0)
+            zoomOut();
+        else if (delta > 0)
+            zoomIn();
+        return;
+    }
 
+    int numSteps = delta / WHEEL_DELTA;
+    numSteps *= 10;
 
-	int numSteps(delta / WHEEL_DELTA);
-	numSteps *= 10;
-	if (numSteps  > 0)//up
-	{
-		while (numSteps--)
-			onPrevLine();
-		//mpVertScrollBar->setValue(--val);
-	}
-	else if (numSteps  < 0)
-	{
-		while (numSteps++)
-			onNextLine();
-		//mpVertScrollBar->setValue(++val);
-	}
+    if (numSteps > 0) // up
+    {
+        while (numSteps--)
+            onPrevLine();
+    }
+    else if (numSteps < 0)
+    {
+        while (numSteps++)
+            onNextLine();
+    }
 
-	m_caretY = -1;
-	//?emit signalCurLineChanged(curLine() + topMargin());
+    m_caretY = -1;
+    //? emit signalCurLineChanged(curLine() + topMargin());
 
-	//updateCurPosInDoc();
-	updateContents();
-	curLine();
+    // updateCurPosInDoc();
+    updateContents();
+    curLine();
 }
 
 void ADCTextView::zoomIn(int range)

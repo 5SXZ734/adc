@@ -31,7 +31,7 @@ void ADCTasksWin::slotItemActivated(const QModelIndex &index)
 
 	/*QString s(mpListView->model()->data(index, Qt::DisplayRole).toString());
 
-	QStringList l(s.split(" ", QString::SkipEmptyParts));
+	QStringList l(s.split(" ", Qt::SkipEmptyParts));
 	for (int i(0); i < l.size(); i++)
 	{
 		//if (!l[i].startsWith("-@"))
@@ -57,7 +57,7 @@ void ADCTasksWin::slotItemClicked(const QModelIndex &index)
 {
 	if (lvi)
 	{
-		QStringList l(lvi->text(0).split(" ", QString::SkipEmptyParts));
+		QStringList l(lvi->text(0).split(" ", Qt::SkipEmptyParts));
 		for (int i(0); i < l.size(); i++)
 		{
 			//if (!l[i].startsWith("-@"))
@@ -78,7 +78,7 @@ void ADCTasksWin::slotItemDoubleClicked(QTreeWidgetItem *lvi, int)
 {
 	if (lvi)
 	{
-		QStringList l(lvi->text(0).split(" ", QString::SkipEmptyParts));
+		QStringList l(lvi->text(0).split(" ", Qt::SkipEmptyParts));
 		for (int i(0); i < l.size(); i++)
 		{
 			//if (!l[i].startsWith("-@"))

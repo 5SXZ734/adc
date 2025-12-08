@@ -252,7 +252,7 @@ TEMPL void DcCleaner_t<T>::DestroyGlobObj(GlobPtr p)
 	//assert(!p->parentField());
 	destroyGlob(p, true);
 	assert(!p->owner());
-	memMgrGlob2().Delete(FieldEx_t::dockField(p));
+	this->memMgrGlob2().Delete(FieldEx_t::dockField(p));
 }
 
 TEMPL void DcCleaner_t<T>::destroyGlob(GlobPtr pSelf, bool bClearPvt)

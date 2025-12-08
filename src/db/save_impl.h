@@ -62,13 +62,13 @@ public:
 	virtual void saveExtra(std::ostream& os)
 	{
 		uint32_t len(0);//how many bytes to skip (provision for derivatives)
-		write(os, len);
+		this->write(os, len);
 	}
 
 	virtual void loadExtra(std::istream& is)
 	{
 		uint32_t len;
-		read(is, len);
+		this->read(is, len);
 		if (len > 0)
 		{
 			is.seekg(std::ios_base::cur, len);
@@ -111,18 +111,18 @@ public:
 	{
 		saveExtra(os);
 
-		writeIdx(os, INDEXTYPE(NCount()));
-		writeIdx(os, INDEXTYPE(TCount()));
-		writeIdx(os, INDEXTYPE(FCount()));
+		this->writeIdx(os, INDEXTYPE(NCount()));
+		this->writeIdx(os, INDEXTYPE(TCount()));
+		this->writeIdx(os, INDEXTYPE(FCount()));
 
 		saveNPool(os);
 		saveTPool(os);
 		saveFPool(os);
 	}
 
-	virtual void loadNCount(std::istream& is){ __allocate_chunks<NameRef_t>(mrN, readIdx(is)); }
-	virtual void loadTCount(std::istream& is){ __allocate_chunks<TypeObj_t>(mrT, readIdx(is)); }
-	virtual void loadFCount(std::istream& is){ __allocate_chunks<Field_t>(mrF, readIdx(is)); }
+	virtual void loadNCount(std::istream& is){ __allocate_chunks<NameRef_t>(mrN, this->readIdx(is)); }
+	virtual void loadTCount(std::istream& is){ __allocate_chunks<TypeObj_t>(mrT, this->readIdx(is)); }
+	virtual void loadFCount(std::istream& is){ __allocate_chunks<Field_t>(mrF, this->readIdx(is)); }
 
 	virtual void loadNPool(std::istream& is)
 	{
@@ -248,10 +248,10 @@ public:
 		return Base_t::isEmpty() && mrL.isEmpty() && mrD.isEmpty();
 	}
 
-	virtual INDEXTYPE folderToIdx(CFolderPtr p) const override { return idxFromPtr(p, mrL); }
+	virtual INDEXTYPE folderToIdx(CFolderPtr p) const override { return this->idxFromPtr(p, mrL); }
 	virtual FolderPtr folderFromIdx(INDEXTYPE n) const override { return this->template idxToPtr<FolderPtr>(mrL, n); }
 
-	virtual INDEXTYPE dataToIdx(CDataPtr p) const override { return idxFromPtr(p, mrD); }
+	virtual INDEXTYPE dataToIdx(CDataPtr p) const override { return this->idxFromPtr(p, mrD); }
 	virtual DataPtr dataFromIdx(INDEXTYPE n) const override { return this->template idxToPtr<DataPtr>(mrD, n); }
 
 
@@ -271,8 +271,8 @@ public:
 
 	virtual void load(std::istream& is) override
 	{
-		Base_t::template __allocate_chunks<DataObj_t>(mrD, readIdx(is));
-		Base_t::template __allocate_chunks<Folder_t>(mrL, readIdx(is));//alocate file chunks here, but load later, so it could recover ptrs to types
+		Base_t::template __allocate_chunks<DataObj_t>(mrD, this->readIdx(is));
+		Base_t::template __allocate_chunks<Folder_t>(mrL, this->readIdx(is));//alocate file chunks here, but load later, so it could recover ptrs to types
 
 		for (TMemoryPool<DataObj_t>::EltIterator i(mrD); i; i++)
 			T::load(is, *i);

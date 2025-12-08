@@ -36,7 +36,7 @@ void TExprDump<TBASE>::dump(int i, const Out_t *pSelf, ESimplifyOutcome eOut) co
 	if (i == 0)
 	{
 		std::cout << "\n\t*** ";
-		std::cout << TBASE::FieldName(DockField());
+		std::cout << TBASE::FieldName(this->DockField());
 		std::cout << ":" << mOpID;
 		std::cout << " ***\n\n";
 	}
@@ -156,7 +156,7 @@ void TExprDump2view<TBASE>::dump(int i, const Out_t *pSelf, ESimplifyOutcome eOu
 	di.setFlags(f);
 
 	FileInfo_t fileInfo(this->DcRef(), this->mrFileDef);
-	FileDumper_t gd(fileInfo, di, nullptr, nullptr, nullptr);
+	FileDumper_t gd(fileInfo, di, nullptr, nullptr, false);
 
 	FuncDumper_t dumper(*this, &gd, gd.indent(), gd.disp(), gd.ctx(), gd.ed());
 

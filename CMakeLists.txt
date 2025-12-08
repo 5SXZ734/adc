@@ -78,11 +78,18 @@ DeclareLibrary(LIB3 dc)
 
 ############################################## adcui5
 
-set(QT_DIR $ENV{QT_DIR})
-set(QT_VERSION "5.15.1")
-set(QT_SHARED 1)
+if(0)
+	set(QT_DIR $ENV{QT_DIR})
+	set(QT_VERSION "5.15.1")
+else()
+	set(QT_DIR $ENV{QT6_DIR})
+#	set(QT_VERSION "6.10.1")
+endif()
+#set(QT_SHARED 1)
 
-FindQT5()
+#message("QT_DIR=${QT_DIR}")
+
+FindQT()
 
 set(LIB4_SRC ${UIQ5_SRC})
 set(LIB4_H ${UIQ5_H})
@@ -107,6 +114,8 @@ set(LIB4_LIB
 set(LIB4_SHARED_MODULE 1)
 
 DeclareLibrary(LIB4 uiqt5)
+
+#InstallEscortDlls(LIB4)
 
 
 ############################################## dc
@@ -160,3 +169,7 @@ set(INI_FILE "adc.ini")
 add_custom_command(TARGET adc POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy ${INI_FILE} "$<TARGET_FILE_DIR:adc>" WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+InstallEscortDlls(PROG)
+
+FinalMessage(PROG)

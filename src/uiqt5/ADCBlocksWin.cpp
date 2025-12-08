@@ -90,7 +90,7 @@ void ADCBlocksWin::populate(ADCStream &ss)
 	QString s;
 	while (ss.ReadString(s))
 	{
-		QStringList o(s.split('\t', QString::KeepEmptyParts));
+		QStringList o(s.split('\t', Qt::KeepEmptyParts));
 
 		QString sId;
 		if (!o.isEmpty())

@@ -261,7 +261,7 @@ TypePtr	FrontImplBase_t::NewBitsetImpl(Locus_t& aLoc)
 }*/
 
 
-TypePtr FrontImplBase_t::NewScopeImpl0(SCOPE_enum eScope, Locus_t& aLoc, MyString& sTypeName)
+TypePtr FrontImplBase_t::NewScopeImpl0(SCOPE_enum eScope, Locus_t& aLoc, const MyString& sTypeName)
 {
 	TypePtr iType(nullptr);
 	TypePtr pCont(aLoc.struc());
@@ -1703,7 +1703,7 @@ bool FrontImpl_t::DeclareContextDependentType(const char *pTypeName)
 	{
 		NamesMgr_t *pNS(OwnerNamesMgr(iScope, nullptr));
 		if (pNS && pNS->findObj(pTypeName))//no name fiddling here, otherwise the refs from FE would fail
-			return nullptr;//no error reporting as well - this could be intent (for attic types)
+			return false;//no error reporting as well - this could be intent (for attic types)
 	}
 
 	Struc_t *pSeg(iScope->typeStruc());
@@ -1846,7 +1846,7 @@ FieldPtr FrontImpl_t::declField(HNAME name, TypePtr iType, AttrIdEnum attr, ADDR
 bool FrontImpl_t::setDefaultCodeType(TypePtr iType)
 {
 	if (!iType || !iType->typeCode())
-		return nullptr;
+		return false;
 
 	assert(!isScopeEmpty());
 	Struc_t *pSeg(scope().cont()->typeStruc());

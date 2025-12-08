@@ -755,7 +755,7 @@ STOP
 	bool dumpClassHierachyImpl(DWORD rva, I_Front::IDumpClassHierarchy *pI, I_Front::RTTI_Method eMethod, DWORD rvaVTable)
 	{
 		try {
-			OFF_t fo(__RVA2FO(rva));
+			OFF_t fo(this->__RVA2FO(rva));
 			//DWORD  va2(rvaVTable != 0 ? __RVA2FO(rvaVTable) : 0);
 			switch (eMethod)
 			{

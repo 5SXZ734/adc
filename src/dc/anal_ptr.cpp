@@ -1906,7 +1906,7 @@ STAGE_STATUS_e AnalyzePtrs_t::run()//FieldMap &cachedArgs)
 #ifdef _DEBUG
 	MyString sFunc(OwnerFuncName());
 	ADDR vaFunc(DockAddr());
-	TRACE1("%s: Reconstructing data structures...\n", sFunc.c_str());
+	//TRACE1("%s: Reconstructing data structures...\n", sFunc.c_str());
 #endif
 
 	m_arrPtrs.clear();

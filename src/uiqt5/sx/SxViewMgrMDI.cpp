@@ -184,7 +184,7 @@ bool SxViewMgrMDI::addDoc(QWidget * pWidget)
 	DocumentObject * pDoc = dynamic_cast<DocumentObject *>(pWidget);
 	if (pDoc != nullptr)
 	{
-		QStringList lst = pDoc->mstrID.split('\n', QString::KeepEmptyParts);
+		QStringList lst = pDoc->mstrID.split('\n', Qt::KeepEmptyParts);
 		title = makeTabTitle(lst[0], lst[1]);
 	}
 
@@ -232,7 +232,7 @@ QWidget *SxViewMgrMDI::openView(QWidget *pWin, bool bActivate)
 		//			SIGNAL(signalHandlePageMenu(QWidget *, const QPoint&)) );
 	}
 
-	QStringList lst = pDoc->mstrID.split('\n', QString::KeepEmptyParts);
+	QStringList lst = pDoc->mstrID.split('\n', Qt::KeepEmptyParts);
 	QString path = lst[0];
 	QString title = lst[1];
 

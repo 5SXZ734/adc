@@ -171,7 +171,7 @@ public:
 	void setEd(MyLineEditBase* p) {
 		mpEd = p; }
 	bool isEditing() const { return mpEd != nullptr; }
-	std::string editName() const { return (mpEd ? mpEd->editName() : ""); }
+	MyString editName() const { return (mpEd ? mpEd->editName() : MyString()); }
 
 	virtual Probe_t* setLocus(Probe_t *);
 	Probe_t *setContext(Probe_t *pctx){ 

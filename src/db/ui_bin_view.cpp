@@ -93,7 +93,8 @@ public:
 			mData = DataSubSource_t(dataNull);*/
 
 		updateView(va, ra);
-		fields().take(fields().begin());
+		auto it = fields().begin();
+		fields().take(it);
 		field.overrideKey(va);
 		fields().insert_unique(&field);
 	}

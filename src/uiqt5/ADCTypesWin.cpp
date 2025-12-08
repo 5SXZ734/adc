@@ -711,7 +711,7 @@ void ADCTypesView::keyPressEvent(QKeyEvent *e)
 
 void ADCTypesView::currentChanged(const QModelIndex & current, const QModelIndex & previous)
 {
-	ADCTypesView::QTreeView::currentChanged(current, previous);
+	QTreeView::currentChanged(current, previous);
 	emit signalCurrentChanged(current, previous);
 }
 

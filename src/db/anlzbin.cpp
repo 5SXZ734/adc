@@ -1672,7 +1672,7 @@ bool ProjModifier_t::MakeSigned(Locus_t& aLoc, bool bForce)
 	if (aLoc.struc()->typeStrucvar())
 	{
 		if (aLoc.addr() == 0)
-			return nullptr;
+			return false;
 		aLoc.reduce();
 	}
 
@@ -1685,7 +1685,7 @@ bool ProjModifier_t::MakeSigned(Locus_t& aLoc, bool bForce)
 	{
 		pType = NextIntAt(aLoc, true);
 		if (!pType)
-			return nullptr;
+			return false;
 	}
 
 //CHECK(aTop.addr() == 0x1008bf1)
@@ -1695,7 +1695,7 @@ bool ProjModifier_t::MakeSigned(Locus_t& aLoc, bool bForce)
 	{
 		FieldMapIt it(InsertFieldIt(aTop));
 		if (it == rSelf.fields().end())
-			return nullptr;
+			return false;
 		aTop.setField(VALUE(it));
 	}
 	//else
@@ -1704,7 +1704,7 @@ bool ProjModifier_t::MakeSigned(Locus_t& aLoc, bool bForce)
 	if (aTop.field()->type())
 	{
 		if (!bForce)
-			return nullptr;
+			return false;
 
 		if (aTop.field()->type() == pType)
 			return aTop.field();
@@ -2326,7 +2326,7 @@ bool ProjModifier_t::makeScope(Locus_t &aLoc, ObjId_t objId)
 	if (!aLoc.field0() || !SetTypeEx(aLoc.field0(), iType))
 	{
 		memMgr().Delete(iType);
-		return nullptr;
+		return false;
 	}
 
 	//now add a default field (so a new scope would not appear empty)

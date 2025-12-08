@@ -241,7 +241,7 @@ public:
 		pCtx(rCore.getContextEx())
 	{
 	}
-	ContextSafeEx_t::~ContextSafeEx_t()
+	~ContextSafeEx_t()
 	{
 		if (pCtx)
 			rCore.releaseContext(pCtx);

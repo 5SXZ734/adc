@@ -380,7 +380,7 @@ bool DcInfo_t::RegStringToArgList(MyString s, Arg1List_t &l) const
 	{
 		const RegInfo_t *p(mrDC.fromRegName(*i));
 		if (!p)
-			return nullptr;
+			return false;
 		l.push_back(Arg1_t((OPC_t)p->opc, p->offs, (OpType_t)p->opsz));
 	}
 	return true;
@@ -3917,7 +3917,7 @@ MyString DcInfo_t::MakePrettyName(MyString s0, TypePtr pClass, int& forceMode)
 		forceMode = 0;
 
 	if (s0.empty())
-		return false;
+		return MyString();
 
 	MyString sScope;
 	if (pClass)//?  - need this to identify constructors/destructors
@@ -3925,7 +3925,7 @@ MyString DcInfo_t::MakePrettyName(MyString s0, TypePtr pClass, int& forceMode)
 
 	MyString s(EnhancedName(s0, sScope));//no more scope
 	if (s.isEmpty())
-		return false;
+		return MyString();
 
 	if (forceMode == 0)
 		if (s.rfind("operator", 0) == 0)//startsWith//operator is reserved

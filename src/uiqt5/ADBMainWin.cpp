@@ -26,6 +26,12 @@
 #include <QPushButton>
 #include <QTextEdit>
 #include <QAction>
+#if QT_VERSION_MAJOR < 6
+#include <QDesktopWidget>
+#include <QtCore/QRegExp>
+#else
+#include <QRegularExpression>
+#endif
 
 #include "qsil/xshared.h"
 #include "qsil/xresmgr.h"
@@ -617,8 +623,14 @@ static QString checkPath(QString fn0)
 	}
 
 	// call a function to open the files
-	if (QRegExp("\\s").indexIn(fn) != -1)//check if the path contains any whitespaces
-		fn = QString("\'") + fn + QString("\'");
+#if QT_VERSION_MAJOR >= 6
+if (QRegularExpression(QStringLiteral("\\s")).match(fn).hasMatch())
+    fn = QString("'") + fn + QString("'");
+#else
+if (QRegExp("\\s").indexIn(fn) != -1)
+    fn = QString("'") + fn + QString("'");
+#endif
+
 	return fn;
 }
 
@@ -2396,15 +2408,20 @@ void ADBMainWin::slotSaveListing(QString command)
 
 void ADBMainWin::slotCloseProject()
 {
-	if (QMessageBox::question(this,
-		tr("Close Project?"),
-		tr("Are you sure you want to close the project?"),
-		tr("&Yes"), tr("&No"),
-		QString(), 0, 1))
-		return;
-	//app().postCommand(CMD_CLOSE, QString());
-	slotPostCommand("close");
+    auto reply = QMessageBox::question(
+        this,
+        tr("Close Project?"),
+        tr("Are you sure you want to close the project?"),
+        QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::No
+    );
+
+    if (reply == QMessageBox::No)
+        return;
+
+    slotPostCommand("close");
 }
+
 
 void ADBMainWin::slotSave()
 {
@@ -2623,7 +2640,11 @@ ADCAboutDlg::ADCAboutDlg(QString companyName, QString productName, QString produ
 	connect(pContact, SIGNAL(linkActivated(const QString&)), SLOT(slotLinkActivated(const QString&)));
 
 	QVBoxLayout* v_layout = new QVBoxLayout(nullptr);
-	v_layout->setMargin(4);
+#if QT_VERSION_MAJOR >= 6
+	v_layout->setContentsMargins(4, 4, 4, 4);
+#else
+	main_layout->setMargin(4);
+#endif
 	v_layout->setSpacing(0);
 	v_layout->addWidget(pProductName);
 	v_layout->addWidget(pVersion);
@@ -2633,8 +2654,14 @@ ADCAboutDlg::ADCAboutDlg(QString companyName, QString productName, QString produ
 	QSpacerItem* spacer1 = new QSpacerItem(1, 40, QSizePolicy::Minimum, QSizePolicy::Fixed);
 	QSpacerItem* spacer2 = new QSpacerItem(1, 300, QSizePolicy::Minimum, QSizePolicy::Fixed);
 
-	QVBoxLayout* main_layout(new QVBoxLayout(this));
+	QVBoxLayout* main_layout = new QVBoxLayout(this);
+
+#if QT_VERSION_MAJOR >= 6
+	main_layout->setContentsMargins(0, 0, 0, 0);
+#else
 	main_layout->setMargin(0);
+#endif
+
 	main_layout->setSpacing(0);
 	main_layout->addItem(spacer1);
 	main_layout->addLayout(v_layout);

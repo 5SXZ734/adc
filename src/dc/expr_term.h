@@ -222,7 +222,7 @@ public:
 	void dumpStr(const char* s, size_t n = 0) {
 		mrDumper.dumpStr(s, n);
 	}
-	void	dumpWStr(const wchar_t* s, uint16_t = 0){
+	void	dumpWStr(const wchar_t* s, uint16_t n = 0){
 		mrDumper.dumpWStr(s, n);
 	}
 	void dumpReserved(const char* s) {

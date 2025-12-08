@@ -37,10 +37,10 @@ public:
 		return B::isEmpty() && mrP.isEmpty() && mrO.isEmpty();
 	}
 
-	virtual INDEXTYPE opToIdx(OpPtr p) const override { return idxFromPtr(p, mrO); }
+	virtual INDEXTYPE opToIdx(OpPtr p) const override { return this->idxFromPtr(p, mrO); }
 	virtual HOP opFromIdx(INDEXTYPE n) const override { return B::template idxToPtr<HOP>(mrO, n); }
 
-	virtual INDEXTYPE pathToIdx(PathPtr p) const override { return idxFromPtr(p, mrP); }
+	virtual INDEXTYPE pathToIdx(PathPtr p) const override { return this->idxFromPtr(p, mrP); }
 	virtual PathPtr pathFromIdx(INDEXTYPE n) const override { return B::template idxToPtr<PathPtr>(mrP, n); }
 
 
@@ -70,8 +70,8 @@ public:
 		mrF.reset(1);
 		mrN.reset(1);
 
-		B::template __allocate_chunks<Path_t>(mrP, readIdx(is));
-		B::template __allocate_chunks<Op_t>(mrO, readIdx(is));
+		B::template __allocate_chunks<Path_t>(mrP, this->readIdx(is));
+		B::template __allocate_chunks<Op_t>(mrO, this->readIdx(is));
 
 		int p(0);
 		for (MemoryMgrEx_t::PathEltIterator i(mrP); i; i++, p++)
@@ -197,7 +197,7 @@ public:
 protected:
 	virtual void saveExtra(std::ostream& os)
 	{
-		CHUNKINDEXTYPE n(CHUNKINDEXTYPE(mrF.count()));//how many bytes to skip (a provision for the overriders)
+		CHUNKINDEXTYPE n(CHUNKINDEXTYPE(this->mrF.count()));//how many bytes to skip (a provision for the overriders)
 		uint32_t len(sizeof(n));
 		write(os, len);
 		writeIdx(os, n);
@@ -207,28 +207,28 @@ protected:
 	virtual void loadExtra(std::istream& is)
 	{
 		uint32_t len;
-		read(is, len);
+		this->read(is, len);
 		CHUNKINDEXTYPE n;//extended fields count (!)
 		if (len != sizeof(n))
 			throw (-SR_MALFORMAT);
-		n = readIdx(is);
+		n = this->readIdx(is);
 		mGBias = n;
 	}
 
-	virtual size_t FCount() const override
+	size_t FCount() const override
 	{
-		assert(mGBias == mrF.count());
+		assert(mGBias == this->mrF.count());
 		//insure a forward compatibility (if a database, saved with ADC, is loaded by ADB)
 		return mGBias + mrG.count();//WARNING:platform-dependent
 	}
 
 	virtual void loadFCount(std::istream& is)
 	{
-		CHUNKINDEXTYPE n(readIdx(is));//total
-		__allocate_chunks<Field_t>(mrF, mGBias);
+		CHUNKINDEXTYPE n(this->readIdx(is));//total
+		this->__allocate_chunks<Field_t>(this->mrF, mGBias);
 		if (n < mGBias)
 			throw (-SR_MALFORMAT);
-		__allocate_chunks<FieldEx_t>(mrG, n - mGBias);
+		this->__allocate_chunks<FieldEx_t>(mrG, n - mGBias);
 	}
 
 	virtual void saveFPool(std::ostream& os)
@@ -266,8 +266,8 @@ protected:
 
 	virtual FieldPtr fieldFromIdx(INDEXTYPE n) const override
 	{
-		if (mbLocal || n <= mGBias)//indices are 1-biased!
-			return mrF.fromSqueezedIndex(n);
+		if (this->mbLocal || n <= mGBias)//indices are 1-biased!
+			return this->mrF.fromSqueezedIndex(n);
 		return mrG.fromSqueezedIndex(n - mGBias);
 	}
 
@@ -286,7 +286,7 @@ protected:
 		if (pGlob)
 			return fieldToIdx(FieldEx_t::dockField(pGlob));
 		CTypePtr pType(p->objType());
-		n = (INDEXTYPE)mrT.toSqueezedIndex(pType);
+		n = (INDEXTYPE)this->mrT.toSqueezedIndex(pType);
 		n |= INDEXTYPE_HIBIT;//hi bit set!
 		return n;
 	}
@@ -299,7 +299,7 @@ protected:
 			if (n & INDEXTYPE_HIBIT)
 			{
 				n &= ~INDEXTYPE_HIBIT;
-				pObj = mrT.fromSqueezedIndex(n);
+				pObj = this->mrT.fromSqueezedIndex(n);
 				assert(pObj->objType());
 			}
 			else

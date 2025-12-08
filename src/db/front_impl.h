@@ -66,7 +66,7 @@ public:
 	FrontImplBase_t(Project_t &, TypePtr);
 	~FrontImplBase_t();
 
-	TypePtr	NewScopeImpl0(SCOPE_enum, Locus_t&, MyString& sTypeName = MyString());
+	TypePtr	NewScopeImpl0(SCOPE_enum, Locus_t&, const MyString& sTypeName = MyString());
 	TypePtr	NewBitsetImpl(Locus_t&);
 	TypePtr NewBitsetImpl();
 	//TypePtr NewProcImpl(Locus_t&);

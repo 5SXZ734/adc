@@ -3,6 +3,7 @@
 #include "globs.h"
 #include "op.h"
 #include "dump_func.h"
+#include "info_class.h"
 
 class IDumpScanner_t
 {

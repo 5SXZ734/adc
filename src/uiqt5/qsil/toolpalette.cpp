@@ -6,7 +6,7 @@
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
 #include <QAction>
-#include <QDesktopWidget>
+//#include <QDesktopWidget>
 #include <QApplication>
 #include <QMainWindow>
 #include <QSizePolicy>
@@ -290,7 +290,7 @@ void QSilToolPalette::mouseReleaseEvent(QMouseEvent* e)
 				// Set top left to window position
 				rect.setTopLeft(pos() + QPoint(1, 1));
 				// Draw rubber band
-				QPainter p(qApp->desktop()->screen());//? , true);
+				//QPainter p(qApp->desktop()->screen());//? , true);
 				/*?		p.setRasterOp(Qt::NotROP);
 				QPen pen;
 				pen.setWidth(3);

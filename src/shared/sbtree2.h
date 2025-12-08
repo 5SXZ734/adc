@@ -1393,13 +1393,13 @@ namespace sbtree
 			return node;
 		}
 
-		void check_max_size_()
+		/*void check_max_size_()
 		{
 			if (size() >= max_size() - 1)
 			{
 				throw std::length_error("sbtree too long");
 			}
-		}
+		}*/
 
 		template<bool is_leftish>
 		node_t *sbt_insert_(node_t *key)

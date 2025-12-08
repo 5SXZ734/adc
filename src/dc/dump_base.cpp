@@ -545,8 +545,8 @@ TEMPL void DumperBase_t<T>::dumpFieldNameScoped(CFieldPtr pSelf, CTypePtr pScope
 	}
 	dumpFieldRef(pSelf);*/
 	TypePtr pFieldScope;
-	if (pSelf->isGlobal() && GlobObj(pSelf))
-		pFieldScope = DcInfo_t::OwnerScope(GlobObj(pSelf));
+	if (pSelf->isGlobal() && this->GlobObj(pSelf))
+		pFieldScope = DcInfo_t::OwnerScope(this->GlobObj(pSelf));
 	else
 		pFieldScope = DcInfo_t::OwnerScope(pSelf);
 	if (pFieldScope && pScope == pFieldScope)
@@ -761,7 +761,7 @@ STOP
 		{
 			pImpField = root().FromExportedField(pField);
 			if (pImpField)
-				pImpGlob = GlobObj(pImpField);
+				pImpGlob = this->GlobObj(pImpField);
 		}
 
 		if (!pImpField || !pImpField->isTypeImp())//a phantom binary?
@@ -1431,7 +1431,7 @@ DumperBase_t<T>::dumpRawDataStruc(CTypePtr pType, DataStream_t& aRaw, CTypePtr i
 			eLastSym = LASTSYM_VAL;
 		}
 
-		if (IsEosField(pField))
+		if (this->IsEosField(pField))
 			break;
 
 		if (iCount > 0)
@@ -1530,7 +1530,7 @@ TEMPL void DumperBase_t<T>::dumpRawDataVTable(const ClassVTable_t &vtable, DataS
 			iCount++;
 		}
 
-		if (IsEosField(pField))
+		if (this->IsEosField(pField))
 			break;
 
 		if (iCount > 0)
@@ -1610,7 +1610,7 @@ TEMPL void DumperBase_t<T>::DumpFieldGap(CFieldPtr pField)
 	TypePtr iStruc(pField->owner());
 	StrucDumper_t dumper(*this, proot(), indent(), disp(), ctx(), ed(), *iStruc);
 	FieldMapCIt i(iStruc->typeStruc()->fields().find(pField->_key()));//address()));
-	size_t gap(CheckUnderlap(i));
+	size_t gap(this->CheckUnderlap(i));
 	assert(gap > 0);
 	dumper.OutputFieldGap0(pField, ADDR(gap));
 	if (IsProbing())
@@ -1632,7 +1632,7 @@ TEMPL void DumperBase_t<T>::pickField(CFieldPtr pField)
 		return;
 	if (pField->isExported())
 	{
-		FieldPtr pImpField(FromExportedField(pField));
+		FieldPtr pImpField(this->FromExportedField(pField));
 		if (pImpField)
 			pField = pImpField;
 	}

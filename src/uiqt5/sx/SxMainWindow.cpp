@@ -20,6 +20,7 @@
 #include <QLayout>
 #include <QSplitter>
 #include <QLineEdit>
+#include <QActionGroup>
 
 #include "SxDocument.h"
 #include "SxMainWindow.h"

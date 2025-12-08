@@ -1,6 +1,11 @@
 #include <QApplication>
 #include <QtCore/QEventLoop>
+#if QT_VERSION_MAJOR < 6
 #include <QDesktopWidget>
+#include <QtCore/QRegExp>
+#else
+#include <QRegularExpression>
+#endif
 #include <QDialog>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -18,7 +23,6 @@
 #include <QToolButton>
 #include <QToolTip>
 //#include <Q3UrlOperator>
-#include <QtCore/QRegExp>
 
 #include "xresmgr.h"
 #include "xresource.h"
@@ -590,7 +594,12 @@ void QSilResManager::loadShortcuts(QMainWindow* topLevel,
 				else
 				{
 					// ianw 3/31/05 handle bug when keysym contains comma keystrokes
-					key_sequence_str.replace(QRegExp(",([,^]|$)"), ",,");
+#if QT_VERSION_MAJOR >= 6
+                    QRegularExpression re(QStringLiteral(",([,^]|$)"));
+                    key_sequence_str.replace(re, ",,");
+#else
+                    key_sequence_str.replace(QRegExp(",([,^]|$)"), ",,");
+#endif
 
 					QKeySequence key_sequence(key_sequence_str);// Convert to QKeySequence
 					QKeySequence first_keystroke(key_sequence[0]); // Extract first keystroke
@@ -723,7 +732,7 @@ bool QSilResManager::removeEntryRecursive(const QString& key)
 	}
 
 	QStringList entries = entryList(actual_key);
-	QStringList::ConstIterator it = 0;
+	QStringList::ConstIterator it;
 	for (it = entries.begin(); it != entries.end(); ++it)
 	{
 		if (!(*it).isEmpty())
@@ -975,7 +984,7 @@ static void copySettings(QSettings& rIn,
 	const QStringList& rSubKeys,
 	const QStringList& rEntries)
 {
-	QStringList::ConstIterator it = 0;
+	QStringList::ConstIterator it;
 	for (it = rEntries.begin(); it != rEntries.end(); ++it)
 	{
 		if (!(*it).isEmpty())
@@ -1421,12 +1430,18 @@ bool QSilResManager::setAccelsForAction(QAction* action, const QStringList& rAcc
 		{
 			QString key_sequence_str = *itr;
 			// ianw 3/31/05 handle bug when keysym contains comma keystrokes
+#if QT_VERSION_MAJOR >= 6
+			QRegularExpression re(QStringLiteral(",([,^]|$)"));
+			key_sequence_str.replace(re, ",,");
+#else
 			key_sequence_str.replace(QRegExp(",([,^]|$)"), ",,");
+#endif
 
 			QKeySequence key_seq(key_sequence_str);
 			if (!key_seq.isEmpty())
 				accel->insertItem(QKeySequence(key_seq));
 		}
+
 
 		QStringList accels = rAccels;
 		if (accels.isEmpty())

@@ -1229,7 +1229,7 @@ void ModuleInfo_t::DumpSegments(CTypePtr iSelf, std::ostream &os, int level)
 //#endif
 	if (!s.empty())
 		s.append(", ");
-	s.append(rSelf.title().empty() ? "<noname>": rSelf.title());
+	s.append(rSelf.title().empty() ? MyString("<noname>"): rSelf.title());
 	if (iSelf->parentField())
 		s.append(MyStringf(" (%s)", mrModule.rangeSetName(iSelf->parentField()->owner()).c_str()));
 	os << s << std::endl;

@@ -7,7 +7,7 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QtCore/QString>
-#include <QtCore/QRegExp>
+//#include <QtCore/QRegExp>
 
 // Handly macro to disable copy constructor and operator=
 #define QSIL_DISABLE_COPY(C) \

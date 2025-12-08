@@ -8,7 +8,11 @@
 #include <QtCore/QMap>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
+#if QT_VERSION_MAJOR < 6
 #include <QtCore/QRegExp>
+#else
+#include <QRegularExpression>
+#endif
 #include <QtCore/QObjectList>
 #include <QtGui/QWidgetList>
 #include <QtGui/QKeySequence>

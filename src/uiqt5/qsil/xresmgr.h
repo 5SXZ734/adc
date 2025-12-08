@@ -103,8 +103,8 @@ private slots:
 	void resourcesInFile(const QString&, QSilResManager::ResourceList&);
 public:
 	// Disabled copy constructor and operator=
-	QSilResManager(const QSilResManager&);
-	//QSilResManager& operator=(const QSilResManager&);
+	QSilResManager(const QSilResManager&) = delete;
+	QSilResManager& operator=(const QSilResManager&) = delete;
 	QSilResManager(const QString&, const QString&, const QString & = QString());
 private:
 	static const char* ALL_ENTRIES;

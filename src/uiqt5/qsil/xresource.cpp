@@ -126,7 +126,7 @@ QString QSilColorResource::toString() const
 
 void QSilColorResource::fromString(const QString& rString)
 {
-	QStringList vals(rString.split(',', QString::SkipEmptyParts));
+	QStringList vals(rString.split(',', Qt::SkipEmptyParts));
 
 	QColor color;
 	if (vals.count() > 2)

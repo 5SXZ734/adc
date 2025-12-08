@@ -1477,7 +1477,7 @@ bool FileInfo_t::DumpToStream(std::ostream &os, adcui::UDispFlags dispflags) con
 	DisplayStd_t disp(bHeader, false, os, aCache);
 	disp.setFlags0(dispflags);
 
-	FileDumper_t FD(*this, disp, nullptr, nullptr, nullptr);
+	FileDumper_t FD(*this, disp, nullptr, nullptr, false);
 
 //?	disp.Clear();
 //?	bool bCont(disp.openScope(nullptr));//root

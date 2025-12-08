@@ -2,12 +2,20 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QList>
 #include <QtCore/QObjectList>
-#include <QDesktopWidget>
+
 #include <QMainWindow>
 #include <QSplitter>
 #include <QToolTip>
 #include <QToolBar>
 #include <QShortcut>
+#include <QGuiApplication>
+#include <QScreen>
+#include <QIODevice>
+
+#if QT_VERSION_MAJOR < 6
+#include <QDesktopWidget>
+#else
+#endif
 
 #include "xwindowsettings.h"
 #include "xresmgr.h"
@@ -26,8 +34,14 @@ GeomSettings::GeomSettings(QSilResManager* resMgr, QWidget* widget, const QStrin
 	QString PREFIX = QString("/") + rKey + "/";
 	QString DISPLAY_PREFIX = QString("/") + rDisplayName + "/";
 
-	QDesktopWidget desktop;
-	const QRect& SCREEN_GEOM = desktop.screenGeometry(widget);
+#if QT_VERSION_MAJOR < 6
+    QDesktopWidget desktop;
+    QRect SCREEN_GEOM = desktop.screenGeometry(widget);
+#else
+    QScreen* screen = widget ? widget->screen() : QGuiApplication::primaryScreen();
+    QRect SCREEN_GEOM = screen ? screen->availableGeometry() : QRect(0, 0, 1920, 1080);
+#endif
+
 
 	mpXRes = resMgr->newResource(PREFIX + "x", double(widget->x()) / SCREEN_GEOM.width(), true);
 	mpXRes->setDisplayName(DISPLAY_PREFIX + QSilResManager::tr("x"));
@@ -83,8 +97,13 @@ const GeomSettings& GeomSettings::operator=(const GeomSettings& that)
 void GeomSettings::load(QWidget* widget) const
 {
 	//Adjust window
-	QDesktopWidget desktop;
-	const QRect& SCREEN_GEOM = desktop.screenGeometry(widget);
+#if QT_VERSION_MAJOR < 6
+    QDesktopWidget desktop;
+    QRect SCREEN_GEOM = desktop.screenGeometry(widget);
+#else
+    QScreen* screen = widget ? widget->screen() : QGuiApplication::primaryScreen();
+    QRect SCREEN_GEOM = screen ? screen->availableGeometry() : QRect(0, 0, 1920, 1080);
+#endif
 
 	double virtual_x = mpXRes->value();
 	double virtual_y = mpYRes->value();
@@ -129,11 +148,16 @@ void GeomSettings::load(QWidget* widget) const
 
 void GeomSettings::save(QWidget* widget)
 {
-	QDesktopWidget desktop;
+#if QT_VERSION_MAJOR < 6
+    QDesktopWidget desktop;
+    QRect SCREEN_GEOM = desktop.screenGeometry(widget);
+#else
+    QScreen* screen = widget ? widget->screen() : QGuiApplication::primaryScreen();
+    QRect SCREEN_GEOM = screen ? screen->availableGeometry() : QRect(0, 0, 1920, 1080);
+#endif
 
 	const QPoint& POS = widget->pos();
 	const QSize& SIZE = widget->size();
-	const QRect& SCREEN_GEOM = desktop.screenGeometry(widget);
 
 	double virtual_x = double(POS.x()) / SCREEN_GEOM.width();
 	double virtual_y = double(POS.y()) / SCREEN_GEOM.height();
