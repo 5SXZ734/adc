@@ -64,6 +64,11 @@ public:
 	ADCModelData *setModelData(ADCModelData *);
 
 	QAction *addContextAction(QAction *);// const QIcon &, QString, QString);
+	template<typename Func>
+	QAction* newAction(const QString& name, Func&& handler,
+		const QKeySequence& key = QKeySequence(),
+		const QIcon& icon = QIcon(),
+		QWidget* parent = nullptr);
 	QAction *newAction(QString name, const char *slot, const QKeySequence & = QKeySequence(), const QIcon & = QIcon(), QWidget * = nullptr);
 	QAction *newActionCheck(QString name, const char *slot, const QKeySequence & = QKeySequence(), const QIcon & = QIcon(), QWidget * = nullptr);
 	void setExtraMargin(QSize a){ mMarginExtra = a; }
@@ -116,6 +121,7 @@ private:
 	void startInplaceTypeEdit();
 	void stopInplaceTypeEdit();
 	void emitSynchronize(bool bForce);
+	void editName();
 
 public slots:
 	void slotReset();
@@ -165,7 +171,7 @@ protected slots:
 	void slotSetFunctionEnd();
 	void slotGoToLocation(QString, int);
 	void slotName();
-	void slotEditName();
+	
 	void slotOffset();
 	void slotDecompile();
 	void slotProperties();

@@ -173,7 +173,7 @@ protected slots:
 	void slotCallCommand(const QString&, ADCStream&);
 	void slotDecompile();
 	void slotStart();
-	void slotPause();
+//	void slotPause();
 	void slotStop();
 	void slotGoTaskTop();
 	void slotTraceModeToggled(bool);

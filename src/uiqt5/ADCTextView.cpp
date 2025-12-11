@@ -1266,11 +1266,11 @@ void ADCTextView::slotVSliderValueChanged(int nPos)
 void ADCTextView::wheelEvent(QWheelEvent* e)
 {
     // For Qt6: use angleDelta().y(), for Qt5: use delta()
-#if QT_VERSION_MAJOR >= 6
+//#if QT_VERSION_MAJOR >= 6
     const int delta = e->angleDelta().y();
-#else
-    const int delta = e->delta();
-#endif
+//#else
+  //  const int delta = e->delta();
+//#endif
 
     if (e->modifiers() == Qt::ControlModifier)
     {

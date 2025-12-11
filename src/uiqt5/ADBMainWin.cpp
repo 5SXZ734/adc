@@ -392,7 +392,10 @@ void ADBMainWin::CreateActions()
 	connect(mpContinueAction, SIGNAL(triggered()), SLOT(slotStart()));
 
 	mpPauseAction = new QAction(SxIcon(":pause_{16|24}.png"), tr("Pause"), this);
-	connect(mpPauseAction, SIGNAL(triggered()), SLOT(slotPause()));
+	connect(mpPauseAction, &QAction::triggered, this, [this]() {ADB().Pause(); });
+
+
+
 
 	mpStopAction = new QAction(SxIcon(":stop_{16|24}.png"), tr("Stop"), this);
 	connect(mpStopAction, SIGNAL(triggered()), SLOT(slotStop()));
@@ -1991,10 +1994,10 @@ void ADBMainWin::slotStart()
 	ADB().Start();
 }
 
-void ADBMainWin::slotPause()
+/*void ADBMainWin::slotPause()
 {
 	ADB().Pause();
-}
+}*/
 
 void ADBMainWin::slotStop()
 {

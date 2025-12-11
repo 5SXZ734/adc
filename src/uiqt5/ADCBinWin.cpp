@@ -62,7 +62,7 @@ ADCBinView::ADCBinView(QWidget *parent)
 	addAction(pFakeAction);*/
 
 	
-	mpEditNameAction = newAction(tr("Edit Name"), SLOT(slotEditName()), Qt::Key_N);
+	mpEditNameAction = newAction(tr("Edit Name"), [this]() { editName(); }, Qt::Key_N);
 	mpEnterTypeAction = newAction(tr("Edit Type"), SLOT(slotEnterType()),   Qt::Key_T);
 	//mpBuildTypeAction = newAction(tr("Build Type ..."), SLOT(slotBuildType()), tr("Ctrl+T"), QIcon(":types.png"));
 	mpMakeAsciiAction = newAction(tr("Make ASCII"), SLOT(slotMakeAscii()), Qt::Key_A);
@@ -165,6 +165,30 @@ void ADCBinView::createContents()
 	connect(mpHorzScrollBar, SIGNAL(actionTriggered(int)), SLOT(slotHSBarAction(int)));
 	connect(mpVertScrollBar, SIGNAL(actionTriggered(int)), SLOT(slotVSBarAction(int)));
 }
+
+template<typename Func>
+	QAction* ADCBinView::newAction(const QString& name,
+					   Func&& handler,
+					   const QKeySequence& key,
+					   const QIcon& icon,
+					   QWidget* parent)
+	{
+		if (!parent)
+			parent = this;
+
+		QAction* act = new QAction(icon, name, this);
+		mActions.append(act);
+
+		act->setShortcut(key);
+		act->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+		act->setShortcutVisibleInContextMenu(true);
+		QObject::connect(act, &QAction::triggered, parent,
+						 [fn = std::forward<Func>(handler)](bool /*checked*/) mutable {
+							 fn();   // your lambda: no bool param needed
+						 });
+		return act;
+	}
+
 
 QAction *ADCBinView::newAction(QString name, const char *slot, const QKeySequence &key, const QIcon &icon, QWidget *parent)
 {
@@ -447,40 +471,40 @@ static const char *strtag(const char *s)
 
 template<typename T> int toUcs4_helper(const unsigned short *uc, int length, T *out)
 {
-    int i = 0;
-    for (; i < length; ++i) {
-        uint u = uc[i];
-        if (QChar::isHighSurrogate(u) && i < length-1) {
-            ushort low = uc[i+1];
-            if (QChar::isLowSurrogate(low)) {
-                ++i;
-                u = QChar::surrogateToUcs4(u, low);
-            }
-        }
-        *out = T(u);
-        ++out;
-    }
-    return i;
+	int i = 0;
+	for (; i < length; ++i) {
+		uint u = uc[i];
+		if (QChar::isHighSurrogate(u) && i < length-1) {
+			ushort low = uc[i+1];
+			if (QChar::isLowSurrogate(low)) {
+				++i;
+				u = QChar::surrogateToUcs4(u, low);
+			}
+		}
+		*out = T(u);
+		++out;
+	}
+	return i;
 }
 
 static int toWCharArray(const QString &s, wchar_t *array)
 {
-    if (sizeof(wchar_t) == sizeof(QChar)) {
-        memcpy(array, s.utf16(), sizeof(wchar_t)*s.length());
-        return s.length();
-    } else {
-        return toUcs4_helper<wchar_t>(s.utf16(), s.length(), array);
-    }
+	if (sizeof(wchar_t) == sizeof(QChar)) {
+		memcpy(array, s.utf16(), sizeof(wchar_t)*s.length());
+		return s.length();
+	} else {
+		return toUcs4_helper<wchar_t>(s.utf16(), s.length(), array);
+	}
 }
 
 /*static QStdWString toStdWString(const QString &s)
 {
-    QStdWString str;
-    str.resize(s.length());
-    if (!s.length())
-        return str;
-    str.resize(toWCharArray(s, &(*str.begin())));
-    return str;
+	QStdWString str;
+	str.resize(s.length());
+	if (!s.length())
+		return str;
+	str.resize(toWCharArray(s, &(*str.begin())));
+	return str;
 }*/
 
 /*
@@ -1071,7 +1095,7 @@ int ADCBinView::scrollUpDown(int delta)
 	return total;
 }
 
-void ADCBinView::slotEditName()
+void ADCBinView::editName()
 {
 	ModelLocker lock(this);
 	startInplaceEdit();
@@ -1096,24 +1120,24 @@ bool ADCBinView::stopInplaceEdit()
 class MyCustomEvent : public QEvent
 {
 public:
-    MyCustomEvent() : QEvent(MyCustomEvent::type())
-    {}
+	MyCustomEvent() : QEvent(MyCustomEvent::type())
+	{}
 
-    virtual ~MyCustomEvent()
-    {}
+	virtual ~MyCustomEvent()
+	{}
 
-    static QEvent::Type type()
-    {
-        if (customEventType == QEvent::None)
-        {
-            int generatedType = QEvent::registerEventType();
-            customEventType = static_cast<QEvent::Type>(generatedType);
-        }
-        return customEventType;
-    }
+	static QEvent::Type type()
+	{
+		if (customEventType == QEvent::None)
+		{
+			int generatedType = QEvent::registerEventType();
+			customEventType = static_cast<QEvent::Type>(generatedType);
+		}
+		return customEventType;
+	}
 
 //private:
-    static QEvent::Type customEventType;
+	static QEvent::Type customEventType;
 };
 
 QEvent::Type MyCustomEvent::customEventType = QEvent::None;
@@ -1460,7 +1484,7 @@ void ADCBinView::slotGoToSelected()
 	if (!lock.model().seekPosIt("$probe", topIt().line(), curIt().line()))
 	{
 		lock.model().popJumpIt(adcui::DUMPOS(), adcui::DUMPOS());
-		slotEditName();
+		editName();
 		return;
 	}
 
@@ -1471,7 +1495,7 @@ void ADCBinView::slotGoToSelected()
 	{
 		//view did not change, start name editor instead
 		lock.model().popJumpIt(adcui::DUMPOS(0), adcui::DUMPOS(0));
-		slotEditName();
+		editName();
 		return;
 	}
 
@@ -1714,7 +1738,7 @@ void ADCBinView::stopInplaceTypeEdit()
 bool ADCBinView::eventFilter(QObject *pObject, QEvent *e)
 {
 /* 	if (dynamic_cast<ADCTypeCompleter *>(pObject))
-    {
+	{
 		if (e->type() == QEvent::KeyPress)
 		{
 			int key(((QKeyEvent *)e)->key());
@@ -1739,7 +1763,7 @@ bool ADCBinView::eventFilter(QObject *pObject, QEvent *e)
 			stopInplaceTypeEdit();
 			return true;
 		}
-    }*/
+	}*/
 
 	return ADCBinViewBase::eventFilter(pObject, e);
 }
@@ -2074,17 +2098,17 @@ void ADCBinWin::createView(ADCModelData *pModelData)
 
 static void clearLayout(QLayout* layout, bool deleteWidgets = true)
 {
-    while (QLayoutItem* item = layout->takeAt(0))
-    {
-        if (deleteWidgets)
-        {
-            if (QWidget* widget = item->widget())
-                widget->deleteLater();
-        }
-        if (QLayout* childLayout = item->layout())
-            clearLayout(childLayout, deleteWidgets);
-        delete item;
-    }
+	while (QLayoutItem* item = layout->takeAt(0))
+	{
+		if (deleteWidgets)
+		{
+			if (QWidget* widget = item->widget())
+				widget->deleteLater();
+		}
+		if (QLayout* childLayout = item->layout())
+			clearLayout(childLayout, deleteWidgets);
+		delete item;
+	}
 }
 
 ADCModelData *ADCBinWin::setModel(ADCModelDataMap &rm, adcui::IBinViewModel *pIModel)
