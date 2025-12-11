@@ -2643,7 +2643,7 @@ ADCAboutDlg::ADCAboutDlg(QString companyName, QString productName, QString produ
 #if QT_VERSION_MAJOR >= 6
 	v_layout->setContentsMargins(4, 4, 4, 4);
 #else
-	main_layout->setMargin(4);
+	v_layout->setMargin(4);
 #endif
 	v_layout->setSpacing(0);
 	v_layout->addWidget(pProductName);

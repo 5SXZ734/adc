@@ -78,14 +78,15 @@ DeclareLibrary(LIB3 dc)
 
 ############################################## adcui5
 
-if(0)
-	set(QT_DIR $ENV{QT_DIR})
-	set(QT_VERSION "5.15.1")
-else()
-	set(QT_DIR $ENV{QT6_DIR})
-#	set(QT_VERSION "6.10.1")
+set(QT_DIR $ENV{QT6_DIR})
+#set(QT_VERSION "6.10.1")
+
+if (NOT QT_DIR)
+	set(QT_DIR $ENV{QT5_DIR})
+	#set(QT_VERSION "5.15.1")
 endif()
 
+set(QT_STATIC 1)
 #set(QT_SHARED 1)
 
 #message("QT_DIR=${QT_DIR}")
@@ -123,7 +124,7 @@ DeclareLibrary(LIB4 uiqt5)
 #InstallEscortDlls(LIB4)
 
 
-############################################## dc
+############################################## front
 
 set(LIB5_DEFINE _CRT_SECURE_NO_WARNINGS)
 set(LIB5_INCLUDE src src/shared)

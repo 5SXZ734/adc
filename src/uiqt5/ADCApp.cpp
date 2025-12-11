@@ -17,7 +17,7 @@
 
 using namespace adcui;
 
-#if(0)
+#if(QT_STATICPLUGIN)
 #ifdef WIN32
 Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin);
 Q_IMPORT_PLUGIN(QWindowsPrinterSupportPlugin);
