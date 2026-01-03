@@ -667,11 +667,11 @@ bool Main_t::CheckEvents()
 	{
 		if (!script().empty())
 		{
-			MyString sCmd(script().front());
+			MyString sCmd(script().pop());
 			SubstituteEnv(sCmd);
 
 			//fprintf(stdout, "-->%s\n", sCmd.c_str());
-			script().pop_front();
+
 			CEventCommand *e(new CEventCommand(sCmd));
 			e->setRefPath(script().path());
 			I_Context *pICtx(script().context());
@@ -1141,14 +1141,20 @@ void Main_t::OnAnlzReady()
 
 int Main_t::checkStopRequest() const
 {
-	if (!mpProject || !mpProject->analyzer())
+	if (!mpProject)
 		return 0;
-	if (mpProject->analyzer()->stopFlag() == StopFlag::RESET && !debugMode())
+	IAnalyzer* pa = mpProject->analyzer();
+	if (!pa)
 		return 0;
-	if (mpProject->analyzer()->stopFlag() == StopFlag::ABORT)
+	if (pa->stopFlag() == StopFlag::RESET && !debugMode())
+		return 0;
+	if (pa->stopFlag() == StopFlag::ABORT)
 		return -1;//abort
 	if (!gui().igui())
+	{
+		fprintf(stdout, "Terminating the events processing (interactive action requested in non-UI mode) ... \n");
 		return -1;//abort in batch mode
+	}
 	return 1;
 }
 

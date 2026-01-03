@@ -71,25 +71,50 @@ MemoryMapped::~MemoryMapped()
 
 
 #ifdef WIN32
-/*std::wstring utf8_to_wstring(const std::string& s)//didn't work!
-{
-	int len;
-	int slength = (int)s.length() + 1;
-	len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
-	wchar_t* buf = new wchar_t[len];
-	MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
-	std::wstring r(buf);
-	delete[] buf;
-	return r;
-}*/
+#include <string>
+#include <stdexcept>
+#include <Windows.h>
 
-#include <codecvt>
-
-// convert UTF-8 string to wstring
-static std::wstring utf8_to_wstring(const std::string& str)
+// UTF-8 -> UTF-16 (std::wstring on Windows)
+static std::wstring utf8_to_wstring(const std::string& s)
 {
-	std::wstring_convert<std::codecvt_utf8<wchar_t>> myconv;
-	return myconv.from_bytes(str);
+    if (s.empty()) return {};
+
+    int needed = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+                                     s.data(), (int)s.size(),
+                                     nullptr, 0);
+    if (needed <= 0)
+        throw std::runtime_error("MultiByteToWideChar(CP_UTF8) failed");
+
+    std::wstring w(needed, L'\0');
+    int written = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+                                      s.data(), (int)s.size(),
+                                      w.data(), needed);
+    if (written != needed)
+        throw std::runtime_error("MultiByteToWideChar(CP_UTF8) failed (2)");
+
+    return w;
+}
+
+// UTF-16 -> UTF-8 (often you also want the reverse)
+static std::string wstring_to_utf8(const std::wstring& w)
+{
+    if (w.empty()) return {};
+
+    int needed = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS,
+                                     w.data(), (int)w.size(),
+                                     nullptr, 0, nullptr, nullptr);
+    if (needed <= 0)
+        throw std::runtime_error("WideCharToMultiByte(CP_UTF8) failed");
+
+    std::string s(needed, '\0');
+    int written = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS,
+                                      w.data(), (int)w.size(),
+                                      s.data(), needed, nullptr, nullptr);
+    if (written != needed)
+        throw std::runtime_error("WideCharToMultiByte(CP_UTF8) failed (2)");
+
+    return s;
 }
 #endif
 

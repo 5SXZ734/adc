@@ -1196,16 +1196,18 @@ MYCOMMAND_IMPL(dcfile)
 	pScript->setContext(&ctx);
 
 	const GlobMap& m(pFolder->fileDef()->globs());
-	ScriptMgr_t::iterator j(pScript->begin());
-	for (GlobMapCIt i(m.begin()); i != m.end(); ++i)
-	{
-		CGlobPtr g(&(*i));
-		if (g->func() && g->func()->isStub())//do stubs only and the cloned ones (-firststub)
+
+	pScript->populateBefore([&](auto emit) {
+		for (GlobMapCIt i(m.begin()); i != m.end(); ++i)
 		{
-			MyStringf s("dc -firststub -@%08X", DockAddr(g));
-			pScript->insert(j, s);
+			CGlobPtr g(&(*i));
+			if (g->func() && g->func()->isStub())//do stubs only and the cloned ones (-firststub)
+			{
+				emit(MyStringf("dc -firststub -@%08X", DockAddr(g)));
+				//pScript->insert(j, s);
+			}
 		}
-	}
+		});
 	return 1;
 }
 
