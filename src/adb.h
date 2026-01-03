@@ -6,6 +6,7 @@
 #include "qx/IGui.h"
 #include "qx/MyString.h"
 #include "qx/MyPath.h"
+#include "qx/MyFileMgr.h"
 #include "shared/INIReader.h"
 
 #include "db/main.h"
@@ -159,19 +160,21 @@ public:
 
 		if (!startup.fOutPath.IsNull())
 		{
-			if (!fStdOut.toFile(startup.fOutPath.Path().c_str()))
+			MyFile f(startup.fOutPath);
+			if (f.EnsureDirExists() && fStdOut.toFile(startup.fOutPath.Path().c_str()))
 			{
-				std::cerr << "Error: Unable to redirect stdout to " << startup.fOutPath.Path() << "." << std::endl
-					<< "Check directory permissions" << std::endl;
+				iRedirect |= 1;
 			}
 			else
 			{
-				iRedirect |= 1;
+				std::cerr << "Error: Unable to redirect stdout to " << startup.fOutPath.Path() << "." << std::endl
+					<< "Check directory permissions" << std::endl;
 			}
 		}
 
 		if (!startup.fErrPath.IsNull())
 		{
+			MyFile f(startup.fErrPath);
 			if (!fStdErr.toFile(startup.fErrPath.Path().c_str()))
 			{
 				std::cerr << "Error: Unable to redirect stderr to " << startup.fErrPath.Path() << "." << std::endl

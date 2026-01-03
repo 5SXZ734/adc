@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "Komok Ink"
-            VALUE "FileDescription", "Notepad"
+            VALUE "FileDescription", "adb"
             VALUE "FileVersion", "1.0.0.0"
             VALUE "InternalName", "ADC"
-            VALUE "LegalCopyright", "Copyright © 2001-2005, 2015-2021"
+            VALUE "LegalCopyright", "Copyright   2001-2005, 2015-2021"
             VALUE "OriginalFilename", "adc.exe"
-            VALUE "ProductName", "Andromeda Debugger"
+            VALUE "ProductName", "Andrey's Debugger"
             VALUE "ProductVersion", "2.0.0.0"
         END
     END
