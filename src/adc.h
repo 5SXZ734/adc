@@ -4,7 +4,7 @@
 
 #include "dc/main_ex.h"
 
-#define PRODUCT_NAME_EX			"Andromeda Decompiler"
+#define PRODUCT_NAME_EX			"Andrey's Decompiler"
 #define PRODUCT_CODENAME_EX		"ADC"
 
 //=================================================== (ADCGuiThread)

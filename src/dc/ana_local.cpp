@@ -1,4 +1,4 @@
-#include "anal_local.h"
+#include "ana_local.h"
 #include "prefix.h"
 #include "shared/defs.h"
 #include "shared/link.h"
@@ -11,11 +11,11 @@
 #include "op.h"
 #include "info_dc.h"
 #include "path.h"
-#include "anal_data.h"
+#include "ana_data.h"
+#include "ana_main.h"
 #include "expr_ptr.h"
 #include "reg.h"
 #include "clean_ex.h"
-#include "anal_main.h"
 #include "cc.h"
 
 LocalsTracer_t::LocalsTracer_t(const FuncTracer_t &r)

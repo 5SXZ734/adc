@@ -12,7 +12,7 @@
 #include "loadui.h"
 
 
-#define PRODUCT_NAME		"Andromeda Debugger"
+#define PRODUCT_NAME		"Andrey's Debugger"
 #define PRODUCT_CODENAME	"ADB"
 #define COMPANY_NAME		"Komok Ink"
 #define PRODUCT_VERSION		2,0,0

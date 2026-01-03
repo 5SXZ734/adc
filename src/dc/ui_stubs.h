@@ -7,7 +7,7 @@
 #include "dump_file.h"
 #include "stubs.h"
 #include "type_funcdef.h"
-#include "anal_main.h"
+#include "ana_main.h"
 #include "info_dc.h"
 
 class StubsViewModel_t : public adcui::IStubsViewModel

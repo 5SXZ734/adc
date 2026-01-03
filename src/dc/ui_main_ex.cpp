@@ -10,7 +10,7 @@
 #include "ui_templ.h"
 
 
-#include "anal_init.h"
+#include "ana_init.h"
 
 
 //RefPtr_t<ProbeEx_t> SrcViewModel_t::mcxRef;

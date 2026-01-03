@@ -1,4 +1,4 @@
-#include "anal_expr.h"
+#include "ana_expr.h"
 #include "prefix.h"
 
 #include "front/front_IA.h"
@@ -14,12 +14,12 @@
 
 #include "path.h"
 #include "op.h"
-#include "anal_ptr.h"
 #include "info_dc.h"
-#include "anal_data.h"
+#include "ana_ptr.h"
+#include "ana_data.h"
+#include "ana_local.h"
 #include "xref.h"
 #include "expr.h"
-#include "anal_local.h"
 #include "flow.h"
 
 #define ITARATIVE_ROOT_TRACER

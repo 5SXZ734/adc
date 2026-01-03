@@ -5,7 +5,7 @@
 #include "type_funcdef.h"
 #include "db/type_proxy.h"
 #include "main_ex.h"
-#include "anal_main.h"
+#include "ana_main.h"
 #include "cc.h"
 #include "info_class.h"
 

@@ -13,7 +13,7 @@
 #include "dump_file.h"
 #include "dump_func.h"
 #include "info_dc.h"
-#include "anal_main.h"
+#include "ana_main.h"
 #include "probe_ex.h"
 #include "ui_main_ex.h"
 #include "info_class.h"
