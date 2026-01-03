@@ -1,4 +1,4 @@
-#include "anal_pcode.h"
+#include "ana_pcode.h"
 #include "prefix.h"
 #include "shared/defs.h"
 #include "shared/misc.h"
@@ -22,10 +22,10 @@
 #include "clean_ex.h"
 #include "path.h"
 #include "op.h"
-#include "anal_branch.h"
-#include "anal_switch.h"
-#include "anal_init.h"
-#include "anal_main.h"
+#include "ana_branch.h"
+#include "ana_switch.h"
+#include "ana_init.h"
+#include "ana_main.h"
 #include "ui_main_ex.h"
 
 //////////////////////////////////////

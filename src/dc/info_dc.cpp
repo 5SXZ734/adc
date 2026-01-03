@@ -8,7 +8,7 @@
 #include "clean_ex.h"
 #include "ui_main_ex.h"
 #include "sym_parse.h"
-#include "anal_main.h"
+#include "ana_main.h"
 #include "arglist.h"
 #include "expr_simpl.h"
 #include "info_class.h"

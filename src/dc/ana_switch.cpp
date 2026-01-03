@@ -1,4 +1,4 @@
-#include "anal_switch.h"
+#include "ana_switch.h"
 #include "prefix.h"
 
 #include "shared/defs.h"
@@ -7,7 +7,7 @@
 #include "db/proj.h"
 #include "path.h"
 #include "type_funcdef.h"
-#include "anal_branch.h"
+#include "ana_branch.h"
 #include "info_dc.h"
 #include "expr_simpl.h"
 #include "expr_dump.h"

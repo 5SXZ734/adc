@@ -16,7 +16,7 @@
 #include "path.h"
 #include "info_dc.h"
 #include "op.h"
-#include "anal_ptr.h"
+#include "ana_ptr.h"
 #include "dump.h"
 #include "type_funcdef.h"
 #include "expr_simpl.h"

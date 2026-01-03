@@ -59,6 +59,7 @@ set(LIB2_LIB -Uqx_1_0_0_R -Utiny_process_1_0_0_R)
 set(LIB2_LOCAL 1)
 
 set(LIB2_SRC ${DB_SRC})
+set(LIB2_EXTRA src/files.cmake)
 
 
 DeclareLibrary(LIB2 db)
@@ -71,6 +72,7 @@ set(LIB3_LIB -Uqx_1_0_0_R -Utiny_process_1_0_0_R)
 set(LIB3_LOCAL 1)
 
 set(LIB3_SRC ${DC_SRC})
+set(LIB3_EXTRA src/files.cmake)
 
 
 DeclareLibrary(LIB3 dc)

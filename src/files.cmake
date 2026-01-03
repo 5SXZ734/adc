@@ -246,26 +246,26 @@ add_src_block(DC_SRC "" "src/dc"
 )
 
 add_src_block(DC_SRC "anal" "src/dc"
-    anal_branch.cpp
-    anal_data.cpp
-    anal_expr.cpp
-    anal_init.cpp
-    anal_local.cpp
-    anal_main.cpp
-    anal_pcode.cpp
-    anal_post.cpp
-    anal_ptr.cpp
-    anal_switch.cpp
-    anal_branch.h
-    anal_data.h
-    anal_expr.h
-    anal_init.h
-    anal_local.h
-    anal_main.h
-    anal_pcode.h
-    anal_post.h
-    anal_ptr.h
-    anal_switch.h
+    ana_branch.cpp
+    ana_data.cpp
+    ana_expr.cpp
+    ana_init.cpp
+    ana_local.cpp
+    ana_main.cpp
+    ana_pcode.cpp
+    ana_post.cpp
+    ana_ptr.cpp
+    ana_switch.cpp
+    ana_branch.h
+    ana_data.h
+    ana_expr.h
+    ana_init.h
+    ana_local.h
+    ana_main.h
+    ana_pcode.h
+    ana_post.h
+    ana_ptr.h
+    ana_switch.h
 )
 
 add_src_block(DC_SRC "dump" "src/dc"

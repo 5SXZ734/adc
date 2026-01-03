@@ -1,7 +1,7 @@
 #pragma once
 
 #include "type_funcdef.h"
-#include "anal_pcode.h"
+#include "ana_pcode.h"
 
 struct RedumpCache_t;
 

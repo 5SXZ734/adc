@@ -9,7 +9,7 @@
 #include "db/front_impl.h"
 #include "sym_parse.h"
 #include "type_funcdef.h"
-#include "anal_local.h"
+#include "ana_local.h"
 #include "cc.h"
 #include "info_class.h"
 #include "clean_ex.h"

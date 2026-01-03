@@ -1,4 +1,4 @@
-#include "anal_data.h"
+#include "ana_data.h"
 #include "prefix.h"
 
 #include "shared/defs.h"
@@ -12,12 +12,12 @@
 #include "db/type_struc.h"
 #include "path.h"
 #include "op.h"
-#include "anal_local.h"
-#include "anal_init.h"
+#include "ana_local.h"
+#include "ana_init.h"
+#include "ana_main.h"
 #include "reg.h"
 #include "expr_ptr.h"
 #include "clean_ex.h"
-#include "anal_main.h"
 
 AnlzXDeps_t::AnlzXDeps_t(const FuncTracer_t &r, bool b)
 	: FuncTracer_t(r),
