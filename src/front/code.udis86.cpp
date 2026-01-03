@@ -13,7 +13,7 @@ extern "C" {
 #ifndef UD_NO_STDINT_DEFINE
 #define UD_NO_STDINT_DEFINE
 #endif
-#include "udis86.h"
+#include "udis86/udis86.h"
 }
 /////////////////////////////////////////////UDis86Code32_t
 class UDis86Code32_t : public I_Code
