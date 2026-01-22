@@ -63,4 +63,24 @@
 
 #define NEW_LOCAL_VARS	1		//no struclocs
 
+#define STDERR	stdout
 
+
+#ifdef _DEBUG
+#define CHECK(arg)  if(arg) 
+#define STOP { int a = 0; (void)a; }
+#define STOP2(arg) { arg; }
+#define STOPx { throw (0); }
+#else
+#define CHECK(arg)
+#define STOP
+#define STOP2(arg)
+#define STOPx
+#endif
+
+#define ASSERT0	{assert(0); abort();}
+
+#undef TRACE1
+#define TRACE1
+#undef TRACE2
+#define TRACE2
