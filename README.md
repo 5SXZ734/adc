@@ -1,3 +1,98 @@
+# ADC — Interactive C/C++ Decompiler & Binary Analysis Toolkit
+
+ADC is an interactive disassembler and experimental decompiler focused on making
+compiled binary code more understandable to humans.
+
+The primary goal of the project is to analyze executable binaries and transform
+selected regions into readable **pseudo-C / pseudo-C++ representations**, exposing
+structure, control flow, and data relationships that are otherwise hidden at the
+machine level.
+
+ADC targets **Intel 64 and IA-32 (x86)** architectures, with additional disassembly
+support for other processor families.
+
+---
+
+## Key Capabilities
+
+### Decompilation & Analysis
+- Interactive disassembly and code exploration
+- Experimental decompilation into pseudo-C / pseudo-C++ constructs
+- Control-flow and data-flow reconstruction
+- Early support for C++ concepts such as:
+  - encapsulation
+  - virtual tables
+  - object layout inference
+  - partial exception handling recovery
+
+> ADC is not intended to be a full compiler-grade decompiler; it is a research and
+> tooling project focused on understanding binaries and recovering intent.
+
+---
+
+### Multi-Architecture Disassembly
+While decompilation work is focused on x86/x64, the disassembler core supports
+multiple architectures, including:
+- x86 / x64
+- ARM / ARM64
+- MIPS
+- PowerPC
+- SPARC
+- others (via modular backends)
+
+---
+
+### Binary Format Exploration
+ADC also functions as a **scriptable binary format viewer**.
+
+Supported formats include:
+- PE (Portable Executable)
+- ELF
+- DWARF
+- PDB (partial)
+
+Binaries can be opened and explored in a **browser-like navigation model**, where
+structures reference one another via hyperlinks, enabling intuitive inspection of
+headers, symbols, sections, and metadata.
+
+---
+
+## Typical Use Cases
+- Reverse engineering and binary inspection
+- Understanding legacy or undocumented executables
+- Exploring compiler output and optimization effects
+- Binary format research and tooling
+- Education and experimentation with disassembly and decompilation techniques
+
+---
+
+## Architecture Overview
+ADC is written primarily in **C++** and emphasizes:
+- explicit data structures
+- performance-aware design
+- separation of parsing, analysis, and presentation layers
+- extensibility for new architectures and binary formats
+
+The project prioritizes correctness and transparency over aggressive automation.
+
+---
+
+## Build (Example)
+```bash
+mkdir build
+cd build
+cmake ..
+cmake --build .
+
+
+
+
+
+
+
+
+
+
 # Architecture Overview
 
 ## 1. Purpose of the System
