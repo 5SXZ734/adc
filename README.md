@@ -88,6 +88,50 @@ cmake --build .
 
 
 
+(Yes — ADC can analyze itself or its dependencies.)
+
+3. **Explore Disassembly**
+
+Once the binary is loaded and processed, double-click the `Qt5Core.dll` entry
+in the left-hand project view. The disassembly will open in the main editor.
+
+You can:
+- scroll through the disassembly
+- use menu commands or keyboard shortcuts
+- rename variables, types, and functions
+- create new symbols at arbitrary addresses
+- change object and type interpretations interactively
+
+4. **Inspect Reconstructed Metadata**
+
+Expand the `Qt5Core.dll` node in the left view to access additional
+reconstructed information, including:
+- exports and imports
+- type aliases
+- strings and resources
+- deduced pseudo-C / pseudo-C++ function prototypes
+- inferred types (structs, enums, classes)
+
+Much of this information is recovered from the executable’s import/export
+tables and associated metadata.
+
+5. **Optional: Load Debug Symbols**
+
+ADC can also open **PDB** files (or **DWARF** data for ELF binaries).
+When debug symbols are available and loaded alongside the executable, ADC can
+reconstruct significantly richer information, including:
+- function and type names
+- source file hierarchy
+- improved type and structure recovery
+
+Click any item in the project tree to open dedicated sub-views showing
+structured data and analysis results.
+
+---
+
+This workflow is designed to be exploratory and interactive: analysis results
+can be refined incrementally as you navigate and annotate the binary.
+
 
 
 
