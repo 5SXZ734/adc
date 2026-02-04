@@ -106,14 +106,14 @@ prebuilt demo binary available on the **Releases** page.
 
    **File → New…**
 
-   Choose a binary to analyze. A good starting example is: Qt5Core.dll
+   Choose a binary to analyze. A good starting example is: Qt5Gui.dll
 
 
 (Yes — ADC can analyze itself or its dependencies.)
 
 3. **Explore Disassembly**
 
-Once the binary is loaded and processed, double-click the `Qt5Core.dll` entry
+Once the binary is loaded and processed, double-click the `Qt5Gui.dll` entry
 in the left-hand project view. The disassembly will open in the main editor.
 
 You can:
@@ -125,7 +125,7 @@ You can:
 
 4. **Inspect Reconstructed Metadata**
 
-Expand the `Qt5Core.dll` node in the left view to access additional
+Expand the `Qt5Gui.dll` node in the left view to access additional
 reconstructed information, including:
 - exports and imports
 - type aliases
@@ -162,6 +162,13 @@ can be refined incrementally as you navigate and annotate the binary.
 ADC supports **multi-module, interconnected binary analysis**, allowing you to explore
 relationships between executables and their statically linked dependencies — a feature
 not commonly found in traditional reverse-engineering tools.
+
+After loading `Qt5Gui.dll`, open the **Files** menu and select:
+
+**Files → Add Module…**
+
+Use this command to load an additional module into the current analysis session.
+For demonstration purposes, you can add: `Qt5Core.dll`
 
 In addition to the main module listed in the **Files** view, ADC displays a list of
 **static dependencies** (for example, DLLs referenced by the loaded executable).
