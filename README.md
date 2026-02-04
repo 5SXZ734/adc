@@ -1,3 +1,198 @@
+# ADC — Interactive C/C++ Decompiler & Binary Analysis Toolkit
+
+ADC is an interactive disassembler and experimental decompiler focused on making
+compiled binary code more understandable to humans.
+
+The primary goal of the project is to analyze executable binaries and transform
+selected regions into readable **pseudo-C / pseudo-C++ representations**, exposing
+structure, control flow, and data relationships that are otherwise hidden at the
+machine level.
+
+ADC targets **Intel 64 and IA-32 (x86)** architectures, with additional disassembly
+support for other processor families.
+
+---
+
+## Key Capabilities
+
+### Decompilation & Analysis
+- Interactive disassembly and code exploration
+- Experimental decompilation into pseudo-C / pseudo-C++ constructs
+- Control-flow and data-flow reconstruction
+- Early support for C++ concepts such as:
+  - encapsulation
+  - virtual tables
+  - object layout inference
+  - partial exception handling recovery
+
+> ADC is not intended to be a full compiler-grade decompiler; it is a research and
+> tooling project focused on understanding binaries and recovering intent.
+
+---
+
+### Multi-Architecture Disassembly
+While decompilation work is focused on x86/x64, the disassembler core supports
+multiple architectures, including:
+- x86 / x64
+- ARM / ARM64
+- MIPS
+- PowerPC
+- SPARC
+- others (via modular backends)
+
+---
+
+### Binary Format Exploration
+ADC also functions as a **scriptable binary format viewer**.
+
+Supported formats include:
+- PE (Portable Executable)
+- ELF
+- DWARF
+- PDB (partial)
+
+Binaries can be opened and explored in a **browser-like navigation model**, where
+structures reference one another via hyperlinks, enabling intuitive inspection of
+headers, symbols, sections, and metadata.
+
+---
+
+## Typical Use Cases
+- Reverse engineering and binary inspection
+- Understanding legacy or undocumented executables
+- Exploring compiler output and optimization effects
+- Binary format research and tooling
+- Education and experimentation with disassembly and decompilation techniques
+
+---
+
+## Architecture Overview
+ADC is written primarily in **C++** and emphasizes:
+- explicit data structures
+- performance-aware design
+- separation of parsing, analysis, and presentation layers
+- extensibility for new architectures and binary formats
+
+The project prioritizes correctness and transparency over aggressive automation.
+
+---
+
+## Build (Example)
+```bash
+mkdir build
+cd build
+cmake ..
+cmake --build .
+
+```
+
+
+
+
+## Quick Start — Try the Prebuilt Demo
+
+If you just want to explore ADC without building it from source, you can use the
+prebuilt demo binary available on the **Releases** page.
+
+### Steps
+
+1. **Launch ADC**
+   
+   Run `adc.exe`.
+
+2. **Open a Binary**
+   
+   From the menu, select:
+
+   **File → New…**
+
+   Choose a binary to analyze. A good starting example is: Qt5Gui.dll
+
+
+(Yes — ADC can analyze itself or its dependencies.)
+
+3. **Explore Disassembly**
+
+Once the binary is loaded and processed, double-click the `Qt5Gui.dll` entry
+in the left-hand project view. The disassembly will open in the main editor.
+
+You can:
+- scroll through the disassembly
+- use menu commands or keyboard shortcuts
+- rename variables, types, and functions
+- create new symbols at arbitrary addresses
+- change object and type interpretations interactively
+
+4. **Inspect Reconstructed Metadata**
+
+Expand the `Qt5Gui.dll` node in the left view to access additional
+reconstructed information, including:
+- exports and imports
+- type aliases
+- strings and resources
+- deduced pseudo-C / pseudo-C++ function prototypes
+- inferred types (structs, enums, classes)
+
+Much of this information is recovered from the executable’s import/export
+tables and associated metadata.
+
+5. **Optional: Load Debug Symbols**
+
+ADC can also open **PDB** files (or **DWARF** data for ELF binaries).
+When debug symbols are available and loaded alongside the executable, ADC can
+reconstruct significantly richer information, including:
+- function and type names
+- source file hierarchy
+- improved type and structure recovery
+
+Click any item in the project tree to open dedicated sub-views showing
+structured data and analysis results.
+
+---
+
+This workflow is designed to be exploratory and interactive: analysis results
+can be refined incrementally as you navigate and annotate the binary.
+
+
+
+
+
+### Multi-Module & Dependency-Aware Analysis (Advanced)
+
+ADC supports **multi-module, interconnected binary analysis**, allowing you to explore
+relationships between executables and their statically linked dependencies — a feature
+not commonly found in traditional reverse-engineering tools.
+
+In addition to the main module listed in the **Files** view, ADC displays a list of
+**static dependencies** (for example, DLLs referenced by the loaded executable).
+
+- Dependencies that are **not yet loaded** appear *greyed out*
+- Dependencies that are **loaded and processed** appear in the normal color
+
+You can load any greyed-out dependency from a **Files->Add Module..** menu. Once loaded, the
+module is analyzed in the same way as the original binary, and its own dependencies
+may also become visible — extending the dependency graph naturally.
+
+This model enables:
+- simultaneous analysis of multiple related binaries
+- navigation across module boundaries
+- inspection of **API call sites between modules**
+- exploration of how control flow and data flow propagate across shared interfaces
+
+Using this approach, ADC allows you to study binaries **as a connected system**, rather
+than as isolated files, making it easier to understand real-world software layouts
+and inter-module behavior.
+
+After loading `Qt5Gui.dll`, open the **Files** menu and select:
+
+**Files → Add Module…**
+
+Use this command to load an additional module into the current analysis session.
+For demonstration purposes, you can add: `Qt5Core.dll`
+
+
+
+
 # Architecture Overview
 
 ## 1. Purpose of the System
