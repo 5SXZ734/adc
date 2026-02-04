@@ -106,7 +106,7 @@ prebuilt demo binary available on the **Releases** page.
 
    **File → New…**
 
-   Choose a binary to analyze. A good starting example is:
+   Choose a binary to analyze. A good starting example is: Qt5Core.dll
 
 
 (Yes — ADC can analyze itself or its dependencies.)
