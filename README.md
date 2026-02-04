@@ -84,7 +84,7 @@ cd build
 cmake ..
 cmake --build .
 
----
+```
 
 
 
@@ -93,7 +93,7 @@ cmake --build .
 
 
 
-## Architecture Overview
+# Architecture Overview
 
 ## 1. Purpose of the System
 
