@@ -163,20 +163,13 @@ ADC supports **multi-module, interconnected binary analysis**, allowing you to e
 relationships between executables and their statically linked dependencies — a feature
 not commonly found in traditional reverse-engineering tools.
 
-After loading `Qt5Gui.dll`, open the **Files** menu and select:
-
-**Files → Add Module…**
-
-Use this command to load an additional module into the current analysis session.
-For demonstration purposes, you can add: `Qt5Core.dll`
-
 In addition to the main module listed in the **Files** view, ADC displays a list of
 **static dependencies** (for example, DLLs referenced by the loaded executable).
 
 - Dependencies that are **not yet loaded** appear *greyed out*
 - Dependencies that are **loaded and processed** appear in the normal color
 
-You can double-click or explicitly load any greyed-out dependency. Once loaded, the
+You can load any greyed-out dependency from a **Files->Add Module..** menu. Once loaded, the
 module is analyzed in the same way as the original binary, and its own dependencies
 may also become visible — extending the dependency graph naturally.
 
@@ -190,7 +183,12 @@ Using this approach, ADC allows you to study binaries **as a connected system**,
 than as isolated files, making it easier to understand real-world software layouts
 and inter-module behavior.
 
+After loading `Qt5Gui.dll`, open the **Files** menu and select:
 
+**Files → Add Module…**
+
+Use this command to load an additional module into the current analysis session.
+For demonstration purposes, you can add: `Qt5Core.dll`
 
 
 
