@@ -88,6 +88,27 @@ cmake --build .
 
 
 
+
+## Quick Start — Try the Prebuilt Demo
+
+If you just want to explore ADC without building it from source, you can use the
+prebuilt demo binary available on the **Releases** page.
+
+### Steps
+
+1. **Launch ADC**
+   
+   Run `adc.exe`.
+
+2. **Open a Binary**
+   
+   From the menu, select:
+
+   **File → New…**
+
+   Choose a binary to analyze. A good starting example is:
+
+
 (Yes — ADC can analyze itself or its dependencies.)
 
 3. **Explore Disassembly**
