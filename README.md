@@ -157,6 +157,36 @@ can be refined incrementally as you navigate and annotate the binary.
 
 
 
+### Multi-Module & Dependency-Aware Analysis (Advanced)
+
+ADC supports **multi-module, interconnected binary analysis**, allowing you to explore
+relationships between executables and their statically linked dependencies — a feature
+not commonly found in traditional reverse-engineering tools.
+
+In addition to the main module listed in the **Files** view, ADC displays a list of
+**static dependencies** (for example, DLLs referenced by the loaded executable).
+
+- Dependencies that are **not yet loaded** appear *greyed out*
+- Dependencies that are **loaded and processed** appear in the normal color
+
+You can double-click or explicitly load any greyed-out dependency. Once loaded, the
+module is analyzed in the same way as the original binary, and its own dependencies
+may also become visible — extending the dependency graph naturally.
+
+This model enables:
+- simultaneous analysis of multiple related binaries
+- navigation across module boundaries
+- inspection of **API call sites between modules**
+- exploration of how control flow and data flow propagate across shared interfaces
+
+Using this approach, ADC allows you to study binaries **as a connected system**, rather
+than as isolated files, making it easier to understand real-world software layouts
+and inter-module behavior.
+
+
+
+
+
 
 # Architecture Overview
 
