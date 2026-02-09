@@ -11,6 +11,8 @@ machine level.
 ADC targets **Intel 64 and IA-32 (x86)** architectures, with additional disassembly
 support for other processor families.
 
+![ADC Screenshot](doc/adc-demo.png)
+
 ---
 
 ## Key Capabilities
