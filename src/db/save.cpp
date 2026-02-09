@@ -1544,13 +1544,13 @@ STOP
 
 	loadSeg(is, iSelf);
 
-	int tag;
-	read(is, tag);
-	rSelf.setModuleTag(tag);
-
 	int unique;
 	read(is, unique);
 	rSelf.setUnique(unique);
+
+	int tag;
+	read(is, tag);
+	rSelf.setModuleTag(tag);
 
 	DataPtr pData(dataFromIdx(readIdx(is)));
 	if (pData)

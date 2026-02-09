@@ -163,8 +163,11 @@ private:
 		{
 			ProjectInfo_t PI(project());
 			FolderPtr pFolder(PI.FindModuleFolderByUnique(mid));
-			CTypePtr pModule(ProjectInfo_s::ModuleOf(pFolder));
-			ssu.WriteString(ProjectInfo_s::ModuleTitle(pModule));
+			if (pFolder)
+			{
+				CTypePtr pModule(ProjectInfo_s::ModuleOf(pFolder));
+				ssu.WriteString(ProjectInfo_s::ModuleTitle(pModule));
+			}
 		}
 	}
 };

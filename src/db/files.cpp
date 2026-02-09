@@ -21,6 +21,8 @@ Folder_t::Folder_t()
 #if(!NO_FILE_ID)
 	mID = ++sID;//1-biased
 #endif
+CHECK(mID == 0x50)
+STOP
 }
 
 Folder_t::Folder_t(const MyFolderKey &s)
@@ -35,7 +37,7 @@ Folder_t::Folder_t(const MyFolderKey &s)
 #if(!NO_FILE_ID)
 	mID = ++sID;//1-biased
 #endif
-CHECK(mID == 22)
+CHECK(mID == 0x50)
 STOP
 }
 

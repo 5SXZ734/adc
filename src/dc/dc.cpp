@@ -58,6 +58,9 @@ Dc_t::Dc_t(ProjectEx_t &rProject, TypePtr iPrimeSeg, TypePtr pModule)
 	if (pEFolder)
 		pEFolder->fileExports()->setNamesMap(iPrimeSeg->typeComplex()->namesMgr());
 
+	FolderPtr pIFolder(MI.FolderOfKind(FTYP_IMPORTS));
+	if (pIFolder)
+		pIFolder->fileImports()->setNamesMap(iPrimeSeg->typeComplex()->namesMgr());
 
 //	mIntrinsics.push_back(nullptr);//first element is NUL
 }
